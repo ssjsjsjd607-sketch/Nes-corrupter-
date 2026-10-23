@@ -1,0 +1,31 @@
+{
+  "name": "rom-corrupter",
+  "version": "1.0.0",
+  "description": "NES and SNES ROM corrupter",
+  "author": "ROM Corrupter <romcorrupter@example.com>",
+  "homepage": "https://example.com",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/ios": "^6.2.0",
+    "@capacitor/filesystem": "^6.0.2",
+    "@capacitor/share": "^6.0.3"
+  },
+  "build": {
+    "appId": "com.romcorrupter.app",
+    "productName": "ROM Corrupter",
+    "files": ["main.js", "www/**"],
+    "win": { "target": ["nsis", "portable"] },
+    "linux": { "target": ["deb", "AppImage"], "category": "Utility", "maintainer": "ROM Corrupter <romcorrupter@example.com>" }
+  }
+}
