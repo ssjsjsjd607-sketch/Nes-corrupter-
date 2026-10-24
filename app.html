@@ -49,6 +49,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 #pl{position:fixed;inset:0;background:#000;z-index:9;display:none;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff}
 #pl.on{display:block}
 #cv{position:absolute;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);width:min(100vw,106.6vh);aspect-ratio:256/240;height:auto;image-rendering:pixelated;background:#111;border:0;border-radius:0}
+#pl[data-m=nes] #pbk{display:none}
 #pl[data-m=snes] .tc,#pl[data-m=snes] #cv,#pl[data-m=snes] #pa{display:none}
 #ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.82rem ui-monospace,monospace;max-width:44%;z-index:2;background:rgba(10,10,20,.6);padding:6px 10px;border-radius:12px}
 #pb{position:absolute;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:54%;z-index:2}
@@ -144,7 +145,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <div id="rg"></div>
 <div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
 </div>
-<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="psv" type="button">Save</button><button id="pa" type="button">Alt engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="psv" type="button">Save</button><button id="pa" type="button">Alt engine</button><button id="pbk" type="button">Built-in engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
 <div class="tc" id="dp"><i style="left:57px;top:0">▲</i><i style="left:57px;bottom:0">▼</i><i style="left:0;top:57px">◀</i><i style="right:0;top:57px">▶</i></div>
 <div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
 <div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
@@ -360,7 +361,7 @@ function playNES(){
 }
 function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
-  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
+  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
   $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
   $('pl').dataset.m='snes';$('pl').classList.add('on');
   status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
@@ -405,6 +406,7 @@ $('pc').addEventListener('click',closeP);
 $('psv').addEventListener('click',save);
 $('bzip').addEventListener('click',saveZip);
 $('pa').addEventListener('click',()=>playEJS('nes'));
+$('pbk').addEventListener('click',()=>{$('eng').value='js';playNES()});
 $('pcl').addEventListener('click',()=>{if(!rom)return;const k=out;out=rom.slice();play();out=k;status('Original game, no glitch')});
 
 /* ---- presets + tutorial ---- */
