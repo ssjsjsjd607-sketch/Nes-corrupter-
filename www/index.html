@@ -5,14 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NES Corruptor</title>
     
-    <!-- Google Fonts for the Cool Theme -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- jsnes Emulator Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsnes@1.2.1/dist/jsnes.min.js"></script>
 
     <style>
-        /* THEME VARIABLES */
         :root {
             --bg: #0a0a0f; --bg-pattern: radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(255, 0, 234, 0.08), transparent 25%);
             --panel: rgba(20, 20, 30, 0.85); --border: #2a2a3a; --text: #e2e8f0; --text-muted: #94a3b8;
@@ -68,10 +64,9 @@
             border-left: 3px solid var(--accent); margin-bottom: 15px;
         }
 
-        /* EMULATOR UI */
         #emulatorArea { display: none; flex-direction: column; align-items: center; width: 100%; margin-top: 10px; }
         
-        #canvasWrapper { position: relative; width: 100%; text-align: center; }
+        #canvasWrapper { position: relative; width: 100%; text-align: center; display: flex; justify-content: center; align-items: center; }
         
         canvas {
             width: 100%; max-width: 100%; border: 1px solid var(--accent); border-radius: 8px;
@@ -84,25 +79,55 @@
             font-size: 12px; cursor: pointer; z-index: 10;
         }
 
-        /* MOBILE CONTROLLER */
         #mobileController {
             display: flex; justify-content: space-between; width: 100%; margin-top: 15px;
-            user-select: none; touch-action: none; padding: 0 10px;
+            user-select: none; touch-action: none; padding: 0 10px; max-width: 500px;
         }
 
-        .dpad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 5px; }
-        .dpad button { background: var(--border); color: var(--text); border: none; border-radius: 5px; font-size: 16px; touch-action: none; }
+        .dpad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 5px; }
+        .dpad button { background: var(--border); color: var(--text); border: none; border-radius: 8px; font-size: 18px; touch-action: none; display: flex; justify-content: center; align-items: center; }
         .dpad button:active { background: var(--accent); color: #000; }
         #btn-up { grid-column: 2; grid-row: 1; }
         #btn-left { grid-column: 1; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
         #btn-down { grid-column: 2; grid-row: 3; }
 
-        .actions { display: grid; grid-template-columns: repeat(2, 50px); gap: 10px; align-items: end; }
-        .actions button { background: var(--border); color: var(--text); border: none; border-radius: 50%; height: 50px; width: 50px; font-weight: bold; font-size: 16px; touch-action: none; }
+        .actions { display: grid; grid-template-columns: repeat(2, 55px); gap: 10px; align-items: end; }
+        .actions button { background: var(--border); color: var(--text); border: none; border-radius: 50%; height: 55px; width: 55px; font-weight: bold; font-size: 18px; touch-action: none; }
         .actions button:active { background: var(--accent); color: #000; }
-        #btn-start, #btn-select { border-radius: 20px; height: 25px; width: 40px; font-size: 10px; margin-top: 10px;}
+        #btn-start, #btn-select { border-radius: 20px; height: 30px; width: 45px; font-size: 11px; margin-top: 10px;}
 
+        #emulatorArea:fullscreen {
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            padding: 20px 0;
+            margin: 0;
+        }
+        #emulatorArea:fullscreen #canvasWrapper {
+            flex-grow: 1;
+            width: 100%;
+            max-width: 90vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #emulatorArea:fullscreen canvas {
+            max-height: 100%;
+            width: auto;
+            max-width: 100%;
+            border-radius: 0;
+            border: none;
+        }
+        #emulatorArea:fullscreen #mobileController {
+            max-width: 800px;
+            padding-bottom: 20px;
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -126,14 +151,12 @@
         
         <div id="log">Ready.</div>
         
-        <!-- Emulator Area -->
         <div id="emulatorArea">
             <div id="canvasWrapper">
                 <button id="fullscreenBtn">Fullscreen</button>
                 <canvas id="nes-canvas" width="256" height="240"></canvas>
             </div>
             
-            <!-- On-Screen Controller -->
             <div id="mobileController">
                 <div class="dpad">
                     <button id="btn-up">▲</button>
@@ -152,7 +175,6 @@
     </div>
 
     <script>
-        // --- THEME SWITCHER ---
         const themeToggle = document.getElementById('themeToggle');
         if (localStorage.getItem('appTheme') === 'simple') {
             document.body.classList.add('simple-theme');
@@ -165,7 +187,6 @@
             themeToggle.innerText = isSimple ? "Switch to Cool GUI" : "Switch to Simple GUI";
         });
 
-        // --- EMULATOR SETUP ---
         let romBytes = null;
         let nes = null;
         let frameLoopId = null;
@@ -176,7 +197,6 @@
         const ctx = canvas.getContext('2d', { alpha: false });
         const imgData = ctx.createImageData(256, 240);
 
-        // 1. Load File
         document.getElementById('fileInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -189,12 +209,11 @@
             reader.readAsArrayBuffer(file);
         });
 
-        // 2. Corrupt Logic (Lowered to 2% chance so it actually boots!)
         function corrupt(bytes) {
             const mode = document.getElementById('engineSelect').value;
             let out = new Uint8Array(bytes);
-            for (let i = 16; i < out.length; i++) { // Skip 16-byte header
-                if (Math.random() > 0.98) { 
+            for (let i = 16; i < out.length; i++) {
+                if (Math.random() > 0.99) { 
                     if (mode === 'randomize') out[i] = Math.floor(Math.random() * 256);
                     if (mode === 'zero') out[i] = 0;
                     if (mode === 'swap' && i < out.length - 1) {
@@ -205,10 +224,9 @@
             return out;
         }
 
-        // 3. Play
         document.getElementById('playBtn').addEventListener('click', () => {
             if (!romBytes) return alert("Select a .nes file first!");
-            if (isRunning) { // Stop old game
+            if (isRunning) {
                 isRunning = false;
                 cancelAnimationFrame(frameLoopId);
             }
@@ -216,8 +234,10 @@
             log.innerText = "Corrupting and loading...";
             const glitchedRom = corrupt(romBytes);
             
-            let romStr = "";
-            for (let i = 0; i < glitchedRom.length; i++) romStr += String.fromCharCode(glitchedRom[i]);
+            let romString = "";
+            for (let i = 0; i < glitchedRom.length; i++) {
+                romString += String.fromCharCode(glitchedRom[i]);
+            }
 
             document.getElementById('emulatorArea').style.display = 'flex';
             
@@ -232,34 +252,33 @@
                     }
                     ctx.putImageData(imgData, 0, 0);
                 },
-                onAudioSample: () => {} // Prevent audio crashes
+                onAudioSample: () => {}
             });
 
             try {
-                nes.loadROM(romStr);
-                log.innerText = "Playing! Glitches may freeze the game, but the app will survive.";
+                nes.loadROM(romString);
+                log.innerText = "Playing!";
                 isRunning = true;
                 startEmulatorLoop();
             } catch(e) {
-                log.innerText = "Rom crashed on load. Try a different glitch mode or less corruption.";
+                log.innerText = "Rom crashed on load.";
             }
         });
 
-        // 4. The Anti-Freeze Loop (This fixes the gray screen!)
         function startEmulatorLoop() {
             function loop() {
                 if (!isRunning) return;
                 try {
-                    if (nes) nes.frame(); // Try to run a frame
-                } catch(e) {
-                    // If the corrupted game crashes, IGNORE IT and keep going!
-                }
+                    if (nes) {
+                        nes.frame();
+                        pollGamepads();
+                    }
+                } catch(e) {}
                 frameLoopId = requestAnimationFrame(loop);
             }
             frameLoopId = requestAnimationFrame(loop);
         }
 
-        // 5. Fullscreen Toggle
         document.getElementById('fullscreenBtn').addEventListener('click', () => {
             const elem = document.getElementById('emulatorArea');
             if (!document.fullscreenElement) {
@@ -270,19 +289,14 @@
             }
         });
 
-        // 6. CONTROLS (Keyboard & On-Screen Touch)
         const keyMap = { 'ArrowUp': 4, 'ArrowDown': 5, 'ArrowLeft': 6, 'ArrowRight': 7, 'Enter': 3, 'Shift': 2, 'z': 0, 'x': 1 };
-        
-        // Keyboard
         document.addEventListener('keydown', (e) => { if (nes && keyMap[e.key] !== undefined) nes.buttonDown(1, keyMap[e.key]); });
         document.addEventListener('keyup', (e) => { if (nes && keyMap[e.key] !== undefined) nes.buttonUp(1, keyMap[e.key]); });
 
-        // Touch buttons bind
         function bindTouch(id, buttonCode) {
             const btn = document.getElementById(id);
             const press = (e) => { e.preventDefault(); if(nes) nes.buttonDown(1, buttonCode); };
             const release = (e) => { e.preventDefault(); if(nes) nes.buttonUp(1, buttonCode); };
-            
             btn.addEventListener('touchstart', press, {passive: false});
             btn.addEventListener('touchend', release, {passive: false});
             btn.addEventListener('touchcancel', release, {passive: false});
@@ -300,6 +314,24 @@
         bindTouch('btn-start', 3);
         bindTouch('btn-select', 2);
 
+        function pollGamepads() {
+            if (!nes) return;
+            const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+            for (let i = 0; i < gamepads.length; i++) {
+                const gp = gamepads[i];
+                if (gp) {
+                    if (gp.buttons[0].pressed) nes.buttonDown(1, 0); else nes.buttonUp(1, 0);
+                    if (gp.buttons[1].pressed) nes.buttonDown(1, 1); else nes.buttonUp(1, 1);
+                    if (gp.buttons[8].pressed) nes.buttonDown(1, 2); else nes.buttonUp(1, 2);
+                    if (gp.buttons[9].pressed) nes.buttonDown(1, 3); else nes.buttonUp(1, 3);
+                    
+                    if (gp.buttons[12].pressed || gp.axes[1] < -0.5) nes.buttonDown(1, 4); else nes.buttonUp(1, 4);
+                    if (gp.buttons[13].pressed || gp.axes[1] > 0.5) nes.buttonDown(1, 5); else nes.buttonUp(1, 5);
+                    if (gp.buttons[14].pressed || gp.axes[0] < -0.5) nes.buttonDown(1, 6); else nes.buttonUp(1, 6);
+                    if (gp.buttons[15].pressed || gp.axes[0] > 0.5) nes.buttonDown(1, 7); else nes.buttonUp(1, 7);
+                }
+            }
+        }
     </script>
 </body>
-        </html>
+</html>
