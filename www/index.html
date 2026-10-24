@@ -99,13 +99,14 @@
 
     <!-- 🎨 Live Launcher Icon & Theme Customizer Engine -->
     <div class="box">
-        <label>🎨 Personalize Theme Aura</label>
+        <label>🎨 Personalize Android App Launcher Icon</label>
         <div class="icon-grid">
-            <div class="icon-swatch active" style="background: linear-gradient(135deg, #00befa, #004b6e);" onclick="changeAppTheme('#00befa', '🌀', this)">🌀</div>
-            <div class="icon-swatch" style="background: linear-gradient(135deg, #ff0055, #6e0022);" onclick="changeAppTheme('#ff0055', '⚡', this)">⚡</div>
-            <div class="icon-swatch" style="background: linear-gradient(135deg, #00ff66, #006e2c);" onclick="changeAppTheme('#00ff66', '💀', this)">💀</div>
-            <div class="icon-swatch" style="background: linear-gradient(135deg, #b300ff, #4d006e);" onclick="changeAppTheme('#b300ff', '🔮', this)">🔮</div>
+            <div class="icon-swatch active" id="swatch_blue" style="background: linear-gradient(135deg, #00befa, #004b6e);" onclick="changeAppIcon('MainActivityBlue', '#00befa', '🌀', this)">🌀</div>
+            <div class="icon-swatch" id="swatch_red" style="background: linear-gradient(135deg, #ff0055, #6e0022);" onclick="changeAppIcon('MainActivityRed', '#ff0055', '⚡', this)">⚡</div>
+            <div class="icon-swatch" id="swatch_green" style="background: linear-gradient(135deg, #00ff66, #006e2c);" onclick="changeAppIcon('MainActivityGreen', '#00ff66', '💀', this)">💀</div>
+            <div class="icon-swatch" id="swatch_purple" style="background: linear-gradient(135deg, #b300ff, #4d006e);" onclick="changeAppIcon('MainActivityPurple', '#b300ff', '🔮', this)">🔮</div>
         </div>
+        <small style="color:#7c7c8a; display:block; margin-top:8px; text-align:center;">Selecting an icon swaps your phone drawer icon style instantly!</small>
     </div>
 
     <button id="corruptBtn" onclick="processCorruption()">💥 CORRUPT & EXPORT GAME</button>
@@ -113,24 +114,58 @@
 </div>
 
 <script>
-let cleanBackupFile = null; // Auto-Rollback Engine RAM cache file storage array slot
+let cleanBackupFile = null; 
 let activeThemeColor = "#00befa";
 
 document.addEventListener("DOMContentLoaded", () => {
     updateStashDropdown();
-    // Load preferred aura theme from local cache memory
-    const savedTheme = localStorage.getItem('nexus_theme_color');
-    const savedEmoji = localStorage.getItem('nexus_theme_emoji');
-    if(savedTheme && savedEmoji) {
-        applyThemeStyles(savedTheme, savedEmoji);
-    }
+    
+    // Restore preferred icon settings from localStorage on reload
+    const savedAlias = localStorage.getItem('nexus_icon_alias') || 'MainActivityBlue';
+    const savedTheme = localStorage.getItem('nexus_theme_color') || '#00befa';
+    const savedEmoji = localStorage.getItem('nexus_theme_emoji') || '🌀';
+    
+    applyThemeStyles(savedTheme, savedEmoji);
+    
+    // Highlight the saved color circle swatch indicator
+    document.querySelectorAll('.icon-swatch').forEach(el => el.classList.remove('active'));
+    if(savedAlias.includes('Blue')) document.getElementById('swatch_blue').classList.add('active');
+    if(savedAlias.includes('Red')) document.getElementById('swatch_red').classList.add('active');
+    if(savedAlias.includes('Green')) document.getElementById('swatch_green').classList.add('active');
+    if(savedAlias.includes('Purple')) document.getElementById('swatch_purple').classList.add('active');
 });
+
+// ⚡ Programmatic Launcher Icon Swapping Bridge
+function changeAppIcon(aliasClassName, color, emoji, element) {
+    document.querySelectorAll('.icon-swatch').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    
+    localStorage.setItem('nexus_icon_alias', aliasClassName);
+    localStorage.setItem('nexus_theme_color', color);
+    localStorage.setItem('nexus_theme_emoji', emoji);
+    
+    applyThemeStyles(color, emoji);
+
+    // Call the Java Android native interface bridge to cycle runtime components
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.IconChanger) {
+        window.Capacitor.Plugins.IconChanger.changeIcon({ aliasName: aliasClassName });
+    } else {
+        console.log("System message: Icon alias trigger scheduled -> " + aliasClassName);
+    }
+}
+
+function applyThemeStyles(color, emoji) {
+    activeThemeColor = color;
+    document.getElementById('dynamicLogo').innerHTML = `${emoji} NEXUS CORRUPTOR`;
+    document.getElementById('dynamicLogo').style.color = color;
+    document.getElementById('dynamicLogo').style.textShadow = `0 0 10px ${color}4d`;
+    document.getElementById('corruptBtn').style.background = color;
+}
 
 function handleFileLoad() {
     const fileInput = document.getElementById('fileInput');
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        // Only backup reasonably sized files (under 100MB) to preserve mobile device RAM stability
         if (file.size < 104857600) { 
             cleanBackupFile = file;
             document.getElementById('rollbackBtn').style.display = "block";
@@ -144,55 +179,4 @@ function handleFileLoad() {
 
 function triggerRollback() {
     if (!cleanBackupFile) return;
-    
-    // Create an automatic un-glitched recovery trigger path download asset anchor
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(cleanBackupFile);
-    link.download = "clean_backup_" + cleanBackupFile.name;
-    link.click();
-    document.getElementById('statusText').innerText = "Clean original file restored!";
-}
-
-function changeAppTheme(color, emoji, element) {
-    document.querySelectorAll('.icon-swatch').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
-    
-    localStorage.setItem('nexus_theme_color', color);
-    localStorage.setItem('nexus_theme_emoji', emoji);
-    applyThemeStyles(color, emoji);
-}
-
-function applyThemeStyles(color, emoji) {
-    activeThemeColor = color;
-    document.getElementById('dynamicLogo').innerHTML = `${emoji} NEXUS CORRUPTOR`;
-    document.getElementById('dynamicLogo').style.color = color;
-    document.getElementById('dynamicLogo').style.textShadow = `0 0 10px ${color}4d`;
-    document.getElementById('corruptBtn').style.background = color;
-}
-
-function adjustDefaults() {
-    const consoleType = document.getElementById('consoleSelect').value;
-    const intensityInput = document.getElementById('intensity');
-    const isAudio = document.getElementById('audioOnly').checked;
-    
-    if (isAudio) {
-        intensityInput.value = consoleType === 'retro' ? 100 : 2500;
-        return;
-    }
-
-    if (consoleType === 'retro') intensityInput.value = 500;
-    else if (consoleType === 'ps1') intensityInput.value = 5000;
-    else if (consoleType === 'ps2_wii') intensityInput.value = 50000;
-    else if (consoleType === 'heavy') intensityInput.value = 250000;
-}
-
-function checkAudioMode() {
-    const mode = document.getElementById('engineMode').value;
-    const audioBox = document.getElementById('audioToggleBox');
-    if (mode === 'swap') {
-        document.getElementById('audioOnly').checked = false;
-        audioBox.style.opacity = "0.4";
-        audioBox.style.pointerEvents = "none";
-    } else {
-        audioBox.style.opacity = "1";
-  
+                
