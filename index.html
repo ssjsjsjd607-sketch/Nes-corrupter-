@@ -125,7 +125,7 @@ function msg(t){$('msg').textContent=t}
 $('f').addEventListener('change',async e=>{
   const f=e.target.files[0];if(!f)return;
   try{
-    rom=new Uint8Array(await f.arrayBuffer());name=f.name;info=detect(rom,name);
+      rom=new Uint8Array(await new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result);rd.readAsArrayBuffer(f)}));name=f.name;info=detect(rom,name);
     $('inf').textContent=name+' · '+(rom.length/1024).toFixed(0)+' KB · '+info.sys+' · header '+info.hdr+' B';
     $('reg').innerHTML='';
     info.regions.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r[0];$('reg').appendChild(o)});
