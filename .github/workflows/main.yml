@@ -1,4 +1,4 @@
-name: Build All Platforms
+name: Build Android APK
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -16,53 +16,14 @@ jobs:
       with: { distribution: 'temurin', java-version: '17' }
     - uses: android-actions/setup-android@v4
       with: { packages: 'platform-tools' }
+    
     - run: npm install
     - run: npx cap add android
     - run: npx cap sync android
     - run: chmod +x android/gradlew
     - run: cd android && ./gradlew assembleDebug
+    
     - uses: actions/upload-artifact@v4
       with:
-        name: Android-APK
+        name: ROM-Corruptor-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
-
-  build-ios:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with: { node-version: '20' }
-    - run: npm install
-    - run: npx cap add ios
-    - run: npx cap sync ios
-    - name: Build Unsigned iOS App
-      run: |
-        cd ios/App
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO
-    - name: Package to IPA
-      run: |
-        mkdir Payload
-        cp -r ios/App/build/Build/Products/Debug-iphoneos/App.app Payload/
-        zip -r App.ipa Payload
-    - uses: actions/upload-artifact@v4
-      with:
-        name: iOS-IPA
-        path: App.ipa
-
-  build-desktop:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with: { node-version: '20' }
-    - run: npm install
-    - name: Build Desktop Apps (EXE & DEB)
-      run: npx electron-builder --linux deb --win portable
-    - uses: actions/upload-artifact@v4
-      with:
-        name: Windows-EXE
-        path: dist/*.exe
-    - uses: actions/upload-artifact@v4
-      with:
-        name: Linux-DEB
-        path: dist/*.deb
