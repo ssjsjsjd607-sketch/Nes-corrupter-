@@ -32,8 +32,8 @@ canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:6px;ba
 #pl{position:fixed;inset:0;background:#000;z-index:9;display:none;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff}
 #pl.on{display:block}
 #cv{position:absolute;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);width:min(100vw,106.6vh);aspect-ratio:256/240;height:auto;image-rendering:pixelated;background:#111}
-#pl[data-m=snes] .tc,#pl[data-m=snes] #cv{display:none}
-#ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.75rem ui-monospace,monospace;opacity:.8;max-width:55%;z-index:2}
+#pl[data-m=snes] .tc,#pl[data-m=snes] #cv,#pl[data-m=snes] #pa{display:none}
+#ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.85rem ui-monospace,monospace;max-width:48%;z-index:2;background:rgba(0,0,0,.55);padding:4px 6px;border-radius:6px}
 #pb{position:absolute;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:2}
 .tc{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom,0px));opacity:.6;z-index:2}
 #dp{left:22px;width:170px;height:170px}
@@ -126,7 +126,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.9rem}
 <div id="rg"></div>
 <div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
 </div>
-<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="pa" type="button">Alt engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
 <div class="tc" id="dp"><i style="left:57px;top:0">▲</i><i style="left:57px;bottom:0">▼</i><i style="left:0;top:57px">◀</i><i style="right:0;top:57px">▶</i></div>
 <div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
 <div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
@@ -264,10 +264,10 @@ function loop(t){
   raf=requestAnimationFrame(loop);poll();
   acc=Math.min(acc+t-last,100);last=t;
   try{while(acc>=16.64){for(const a in fz)nes.cpu.mem[a]=fz[a];if(!paused)nes.frame();acc-=16.64;if(nes.crashMessage)throw new Error(nes.crashMessage)}if(!$('rm').hidden&&++rtick%12==0)rmRender()}
-  catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' · tap New glitch, or try Mild')}
+  catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' · tap Alt engine or New glitch')}
 }
 function playNES(){
-  if(typeof jsnes==='undefined'){msg('NES engine missing. Re-run the build so jsnes.min.js gets bundled.');return}
+  if(typeof jsnes==='undefined'){playEJS('nes');status('Built-in NES engine missing, using alternate engine (needs internet)');return}
   stopP();audioOn();aw=ar=0;
   const ctx=$('cv').getContext('2d'),img=ctx.createImageData(256,240),u32=new Uint32Array(img.data.buffer);
   try{
@@ -275,20 +275,22 @@ function playNES(){
       onFrame:f=>{for(let i=0;i<61440;i++)u32[i]=0xFF000000|f[i];ctx.putImageData(img,0,0)},
       onAudioSample:(l,r)=>{if(aw-ar>8000)ar=aw-2000;AL[aw&8191]=l;AR[aw&8191]=r;aw++},
       sampleRate:ac?ac.sampleRate:44100});
+    if(typeof nes.stop!=='function')nes.stop=()=>{};
     nes.loadROM(bin(out));
-  }catch(e){nes=null;msg('Cannot start this ROM: '+(e.message||e));return}
+  }catch(e){nes=null;playEJS('nes');status('Built-in engine failed ('+(e.message||e)+'). Using alternate engine.');return}
   fz={};rsel=-1;paused=false;$('rpa').textContent='Pause';$('rm').hidden=true;$('pr').hidden=!$('rme').checked;
   $('pl').dataset.m='nes';$('pl').classList.add('on');
   status('Seed '+$('seed').value+' · '+(navigator.getGamepads&&[...navigator.getGamepads()].some(g=>g)?'controller ready':'press a controller button to connect'));
   last=performance.now();acc=0;raf=requestAnimationFrame(loop);
 }
-function playSNES(){
+function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
-  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="snes";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
-  $('pr').hidden=true;$('rm').hidden=true;
-  $('sf').hidden=false;$('pl').dataset.m='snes';$('pl').classList.add('on');
-  status('Seed '+$('seed').value+' · loading SNES core (needs internet)');
+  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
+  $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
+  $('pl').dataset.m='snes';$('pl').classList.add('on');
+  status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
 }
+function playSNES(){playEJS('snes')}
 function play(){
   if(!out)return;
   if(info.sys.startsWith('NES'))playNES();
@@ -322,6 +324,7 @@ addEventListener('gamepadconnected',e=>status('Controller: '+e.gamepad.id.slice(
 $('bp').addEventListener('click',play);
 $('px2').addEventListener('click',()=>{newSeed();run();play()});
 $('pc').addEventListener('click',closeP);
+$('pa').addEventListener('click',()=>playEJS('nes'));
 $('pcl').addEventListener('click',()=>{if(!rom)return;const k=out;out=rom.slice();play();out=k;status('Original game, no glitch')});
 
 /* ---- presets + tutorial ---- */
