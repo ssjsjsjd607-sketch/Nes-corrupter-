@@ -17,7 +17,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        # We removed the 'cache: npm' line to prevent the lockfile error
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -25,21 +24,19 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    -     - name: Setup Android SDK
+    - name: Setup Android SDK
       uses: android-actions/setup-android@v4
       with:
         packages: 'platform-tools'
+
     - name: Install dependencies
-      run: npm install  # Using 'npm install' instead of 'npm ci' to avoid lockfile mismatch
+      run: npm install
 
     - name: Run prepare script
       run: node prepare.js
 
     - name: Add Android Platform
-      run: |
-        if [ ! -d "android" ]; then
-          npx cap add android
-        fi
+      run: npx cap add android
 
     - name: Sync Web Assets
       run: npx cap sync android
