@@ -1,11 +1,18 @@
 {
-  "name": "nexus-corruptor",
+  "name": "rom-corruptor",
   "version": "1.0.0",
-  "description": "Multi-System ROM and ISO Glitch Engine Core",
-  "main": "www/index.html",
+  "private": true,
   "scripts": {
-    "build": "node prepare.js"
+    "build": "echo 'No web build step needed; www/ is static'",
+    "cap:sync": "npx cap sync"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@capacitor/android": "^5.7.0",
+    "@capacitor/core": "^5.7.0",
+    "@capacitor/ios": "^5.7.0",
+    "jsnes": "^2.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^5.7.0"
+  }
 }
