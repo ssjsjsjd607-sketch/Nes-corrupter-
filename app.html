@@ -42,19 +42,46 @@ canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:6px;ba
 .bt{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.45);font:700 20px ui-monospace,monospace;display:flex;align-items:center;justify-content:center;touch-action:none}
 #bA{margin-bottom:36px}
 .sb{width:auto;height:auto;padding:8px 14px;border-radius:14px;font-size:12px}
+h2{font-size:1rem;margin:0 0 10px}
+.big{width:100%;padding:14px;font-size:1.05rem}
+.seg{display:flex;gap:8px}.seg button{flex:1}
+.seg button.on{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.9rem}
+.lk{background:none;border:0;color:var(--mut);text-decoration:underline;font-weight:400;padding:8px}
+#tu{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px}
+#tu.on{display:flex}
+#tc{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:16px;padding:24px;max-width:420px;width:100%;text-align:center}
+#ti{font-size:3rem;line-height:1.1}
+#tx{margin:8px 0 0;line-height:1.5}
+.dots{display:flex;gap:6px;justify-content:center;margin:16px 0}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--bd)}.dots i.on{background:var(--ac)}
+#rm{position:absolute;z-index:3;right:8px;top:calc(50px + env(safe-area-inset-top,0px));width:min(380px,96vw);max-height:62vh;overflow:auto;background:rgba(0,0,0,.9);border:1px solid #555;border-radius:10px;padding:8px;font:12px ui-monospace,monospace;color:#fff}
+#rm .r{align-items:center;flex-wrap:wrap;gap:6px}
+#rm button{padding:6px 9px;font-size:12px;background:#333;color:#fff;border-color:#666}
+#rg{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;margin:8px 0}
+#rg span{padding:6px 0;text-align:center;background:#222;cursor:pointer}
+#rg .sel{outline:2px solid #fff}#rg .fz{background:var(--ac)}
+#rv{width:56px;padding:6px;background:#222;color:#fff;border:1px solid #666;border-radius:6px;font:inherit}
 </style></head>
 <body><main>
 <h1>ROM CORRUPTER</h1>
-<p class="s">NES + SNES glitch tool. Works offline, nothing is uploaded. Use ROMs you own.</p>
+<p class="s">Scramble an NES or SNES game, then play it. Works offline. Use games you own.</p>
 
 <div class="c">
-<label for="f">ROM file (.nes / .sfc / .smc)</label>
+<h2>1. Choose a game</h2>
 <input type="file" id="f">
-<div class="k" id="inf">No file loaded.</div>
+<div class="k" id="inf">Pick a .nes, .sfc or .smc file.</div>
 </div>
 
 <div class="c" id="ctl" hidden>
+<h2>2. How wild?</h2>
+<div class="seg" id="pre"><button type="button" data-v="-2">Mild</button><button type="button" data-v="-1.2" class="on">Medium</button><button type="button" data-v="-0.3">Wild</button></div>
+<button class="big" id="roll" type="button" style="margin-top:10px">🎲 New glitch</button>
+<div class="k" id="stat"></div>
+<details><summary>Advanced</summary>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="rme"> RAM editor while playing (NES only)</label>
 <label for="reg">Region</label><select id="reg"></select>
+<p class="n" style="margin:4px 0 0">For NES, “CHR only” gives picture glitches that rarely crash.</p>
 <label for="mode">Corruption mode</label>
 <select id="mode">
 <option value="mix">Chaos mix</option>
@@ -66,25 +93,35 @@ canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:6px;ba
 <option value="copy">Copy blocks</option>
 </select>
 <label for="amt">Intensity: <span id="pct"></span></label>
-<input type="range" id="amt" min="-3" max="1" step="0.05" value="-1.5">
-<label for="seed">Seed</label>
-<div class="r"><input type="text" id="seed" autocapitalize="off" autocomplete="off"><button id="roll" type="button">Re-roll</button></div>
+<input type="range" id="amt" min="-3" max="1" step="0.05" value="-1.2">
+<label for="seed">Seed (same seed = same glitch)</label>
+<input type="text" id="seed" autocapitalize="off" autocomplete="off">
 <canvas id="map" width="512" height="28"></canvas>
-<div class="k" id="stat"></div>
+</details>
 </div>
 
 <div class="c" id="sv" hidden>
-<button class="p" id="bp" type="button" style="width:100%;margin-bottom:8px">▶ Play corrupted game</button>
-<div class="r"><button class="p" id="bz" type="button" style="flex:1">Save corrupted ROM</button><button id="bt" type="button" style="flex:1">Share</button></div>
-<p class="n" style="margin:10px 0 0">Header bytes are never touched. Many corruptions just crash, so keep re-rolling or lower the intensity.</p>
+<h2>3. Play or save</h2>
+<button class="p big" id="bp" type="button">▶ Play</button>
+<div class="r" style="margin-top:8px"><button id="bz" type="button" style="flex:1">Save</button><button id="bt" type="button" style="flex:1">Share</button></div>
+<p class="n" style="margin:10px 0 0">Many glitches won’t start. That’s normal: tap New glitch or pick Mild.</p>
 <div class="k" id="msg"></div>
 </div>
+
+<div style="text-align:center"><button class="lk" id="hp" type="button">How to use this app</button></div>
 </main>
+<div id="tu"><div id="tc"><div id="ti"></div><h2 id="tt" style="font-size:1.3rem;margin:8px 0 0"></h2><p id="tx"></p><div class="dots" id="td"></div>
+<div class="r"><button id="tk" type="button">Skip</button><button id="tb" type="button">Back</button><button class="p" id="tn" type="button" style="flex:1">Next</button></div></div></div>
 <div id="pl" data-m="nes">
 <canvas id="cv" width="256" height="240"></canvas>
 <iframe id="sf" hidden allow="gamepad; autoplay; fullscreen" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
 <div id="ps"></div>
-<div id="pb"><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div id="rm" hidden>
+<div class="r"><button id="rp0" type="button">◀</button><span id="rpg"></span><button id="rp1" type="button">▶</button><button id="rpa" type="button">Pause</button><button id="rsc" type="button">Scramble</button></div>
+<div id="rg"></div>
+<div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
+</div>
+<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
 <div class="tc" id="dp"></div>
 <div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
 <div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
@@ -220,7 +257,7 @@ function closeP(){stopP();$('pl').classList.remove('on');if(ac)ac.suspend()}
 function loop(t){
   raf=requestAnimationFrame(loop);poll();
   acc=Math.min(acc+t-last,100);last=t;
-  try{while(acc>=16.64){nes.frame();acc-=16.64}}
+  try{while(acc>=16.64){for(const a in fz)nes.cpu.mem[a]=fz[a];if(!paused)nes.frame();acc-=16.64}if(!$('rm').hidden&&++rtick%12==0)rmRender()}
   catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' (tap New glitch)')}
 }
 function playNES(){
@@ -234,6 +271,7 @@ function playNES(){
       sampleRate:ac?ac.sampleRate:44100});
     nes.loadROM(bin(out));
   }catch(e){nes=null;msg('Cannot start this ROM: '+(e.message||e));return}
+  fz={};rsel=-1;paused=false;$('rpa').textContent='Pause';$('rm').hidden=true;$('pr').hidden=!$('rme').checked;
   $('pl').dataset.m='nes';$('pl').classList.add('on');
   status('Seed '+$('seed').value+' · '+(navigator.getGamepads&&[...navigator.getGamepads()].some(g=>g)?'controller ready':'press a controller button to connect'));
   last=performance.now();acc=0;raf=requestAnimationFrame(loop);
@@ -241,6 +279,7 @@ function playNES(){
 function playSNES(){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
   $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="snes";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
+  $('pr').hidden=true;$('rm').hidden=true;
   $('sf').hidden=false;$('pl').dataset.m='snes';$('pl').classList.add('on');
   status('Seed '+$('seed').value+' · loading SNES core (needs internet)');
 }
@@ -276,5 +315,51 @@ addEventListener('gamepadconnected',e=>status('Controller: '+e.gamepad.id.slice(
 $('bp').addEventListener('click',play);
 $('px2').addEventListener('click',()=>{newSeed();run();play()});
 $('pc').addEventListener('click',closeP);
+
+/* ---- presets + tutorial ---- */
+const mark=()=>document.querySelectorAll('#pre button').forEach(b=>b.classList.toggle('on',+b.dataset.v===+$('amt').value));
+document.querySelectorAll('#pre button').forEach(b=>b.addEventListener('click',()=>{$('amt').value=b.dataset.v;mark();run()}));
+$('amt').addEventListener('input',mark);
+const TU=[
+['👾','Welcome','This app scrambles the code of an NES or SNES game to make wild glitches, then lets you play the result.'],
+['📂','1. Choose a game','Tap the file picker and choose a game file (.nes, .sfc or .smc). Use games you own. Nothing leaves your device.'],
+['🎲','2. Glitch it','Pick Mild, Medium or Wild, then tap New glitch for a different result each time. Many results won’t start. That’s normal: roll again, or go milder.'],
+['🎮','3. Play','Tap Play. Use the on-screen buttons, or pair a Bluetooth controller in your device’s Bluetooth settings and press any button on it.'],
+['💾','4. Keep the good ones','Found a great glitch? Tap Save to keep the file, or Share to send it to another emulator app.']];
+let ti=0;
+function tuShow(i){
+  ti=i;const t=TU[i];
+  $('ti').textContent=t[0];$('tt').textContent=t[1];$('tx').textContent=t[2];
+  $('td').innerHTML=TU.map((_,j)=>'<i'+(j==i?' class="on"':'')+'></i>').join('');
+  $('tb').style.visibility=i?'visible':'hidden';$('tn').textContent=i==TU.length-1?'Start':'Next';
+}
+function tuOpen(){tuShow(0);$('tu').classList.add('on')}
+function tuClose(){$('tu').classList.remove('on');try{localStorage.setItem('tuSeen','1')}catch(e){}}
+$('tn').onclick=()=>ti==TU.length-1?tuClose():tuShow(ti+1);
+$('tb').onclick=()=>tuShow(ti-1);$('tk').onclick=tuClose;$('hp').onclick=tuOpen;
+try{if(!localStorage.getItem('tuSeen'))tuOpen()}catch(e){tuOpen()}
+
+/* ---- RAM editor (NES, off by default) ---- */
+let rpage=0,rsel=-1,paused=false,fz={},rtick=0;
+const h4=n=>n.toString(16).toUpperCase().padStart(4,'0'),h2=n=>n.toString(16).toUpperCase().padStart(2,'0');
+function rmRender(){
+  if(!nes)return;const m=nes.cpu.mem,b=rpage*256;let h='';
+  for(let i=0;i<256;i++){const a=b+i;h+='<span data-a="'+a+'" class="'+(a==rsel?'sel ':'')+(a in fz?'fz':'')+'">'+h2(m[a]||0)+'</span>'}
+  $('rg').innerHTML=h;$('rpg').textContent='$'+h4(b)+'-$'+h4(b+255);
+}
+$('pr').onclick=()=>{$('rm').hidden=!$('rm').hidden;rmRender()};
+$('rp0').onclick=()=>{rpage=(rpage+7)%8;rmRender()};
+$('rp1').onclick=()=>{rpage=(rpage+1)%8;rmRender()};
+$('rg').addEventListener('click',e=>{
+  const a=e.target.dataset&&e.target.dataset.a;if(a==null||!nes)return;
+  rsel=+a;$('rv').value=h2(nes.cpu.mem[rsel]||0);$('rad').textContent='$'+h4(rsel);rmRender();
+});
+$('rset').onclick=()=>{
+  if(rsel<0||!nes)return;const v=parseInt($('rv').value,16);if(isNaN(v))return;
+  nes.cpu.mem[rsel]=v&255;if(rsel in fz)fz[rsel]=v&255;rmRender();
+};
+$('rfz').onclick=()=>{if(rsel<0||!nes)return;if(rsel in fz)delete fz[rsel];else fz[rsel]=nes.cpu.mem[rsel];rmRender()};
+$('rpa').onclick=()=>{paused=!paused;$('rpa').textContent=paused?'Resume':'Pause'};
+$('rsc').onclick=()=>{if(!nes)return;for(let i=0;i<8;i++)nes.cpu.mem[Math.floor(Math.random()*2048)]=Math.floor(Math.random()*256);rmRender()};
 </script>
 </body></html>
