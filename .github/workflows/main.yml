@@ -25,7 +25,8 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+  
 
       - name: Run prepare script
         run: node prepare.js
