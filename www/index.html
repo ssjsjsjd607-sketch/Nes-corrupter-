@@ -12,192 +12,101 @@
     <script src="https://cdn.jsdelivr.net/npm/jsnes@1.2.1/dist/jsnes.min.js"></script>
 
     <style>
-        /* =========================================
-           THEME VARIABLES (Default: Cool Theme)
-           ========================================= */
+        /* THEME VARIABLES */
         :root {
-            --bg: #0a0a0f;
-            --bg-pattern: radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(255, 0, 234, 0.08), transparent 25%);
-            --panel: rgba(20, 20, 30, 0.85);
-            --border: #2a2a3a;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #00f3ff;
-            --accent-hover: #00c0cc;
-            --btn-bg: linear-gradient(90deg, rgba(0,243,255,0.15), rgba(255,0,234,0.15));
-            --btn-text: #00f3ff;
-            --font-main: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --log-bg: #000000;
-            --log-text: #a7f3d0;
-            --shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            --bg: #0a0a0f; --bg-pattern: radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(255, 0, 234, 0.08), transparent 25%);
+            --panel: rgba(20, 20, 30, 0.85); --border: #2a2a3a; --text: #e2e8f0; --text-muted: #94a3b8;
+            --accent: #00f3ff; --accent-hover: #00c0cc; --btn-bg: linear-gradient(90deg, rgba(0,243,255,0.15), rgba(255,0,234,0.15));
+            --btn-text: #00f3ff; --font-main: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --log-bg: #000000; --log-text: #a7f3d0; --shadow: 0 0 20px rgba(0, 243, 255, 0.2);
         }
-
-        /* =========================================
-           SIMPLE THEME OVERRIDES
-           ========================================= */
         body.simple-theme {
-            --bg: #f2f2f6;
-            --bg-pattern: none;
-            --panel: #ffffff;
-            --border: #cccccc;
-            --text: #111111;
-            --text-muted: #666666;
-            --accent: #007aff;
-            --accent-hover: #005bb5;
-            --btn-bg: #007aff;
-            --btn-text: #ffffff;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --font-mono: monospace;
-            --log-bg: #f4f4f4;
-            --log-text: #333333;
-            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --bg: #f2f2f6; --bg-pattern: none; --panel: #ffffff; --border: #cccccc; --text: #111111; --text-muted: #666666;
+            --accent: #007aff; --accent-hover: #005bb5; --btn-bg: #007aff; --btn-text: #ffffff;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; --font-mono: monospace;
+            --log-bg: #f4f4f4; --log-text: #333333; --shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        /* =========================================
-           GLOBAL STYLES
-           ========================================= */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg);
-            background-image: var(--bg-pattern);
-            color: var(--text);
-            font-family: var(--font-main);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.3s ease, color 0.3s ease;
+            background-color: var(--bg); background-image: var(--bg-pattern); color: var(--text);
+            font-family: var(--font-main); min-height: 100vh; padding: 15px;
+            display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease;
         }
 
-        /* Theme Toggle Button */
         #themeToggle {
-            align-self: flex-end;
-            max-width: 500px;
-            margin-bottom: 10px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        #themeToggle:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+            align-self: flex-end; max-width: 500px; margin-bottom: 10px; background: transparent;
+            border: 1px solid var(--border); color: var(--text); padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px;
         }
 
         .container {
-            background: var(--panel);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            background: var(--panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+            width: 100%; max-width: 500px; box-shadow: var(--shadow); transition: all 0.3s ease;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
+        h1 { text-align: center; margin-bottom: 15px; font-size: 22px; color: var(--accent); text-transform: uppercase; }
+        label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
 
         input[type="file"], select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background: var(--log-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: var(--font-main);
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input[type="file"]:focus, select:focus {
-            border-color: var(--accent);
-        }
-
-        input[type="file"]::file-selector-button {
-            background: var(--border);
-            color: var(--text);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            margin-right: 10px;
-            cursor: pointer;
+            width: 100%; padding: 10px; margin-bottom: 15px; background: var(--log-bg);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-main); font-size: 14px; outline: none;
         }
 
         button#playBtn {
-            width: 100%;
-            padding: 14px;
-            background: var(--btn-bg);
-            color: var(--btn-text);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-bottom: 15px;
-            transition: all 0.2s;
+            width: 100%; padding: 14px; background: var(--btn-bg); color: var(--btn-text);
+            border: 1px solid var(--accent); border-radius: 8px; font-size: 16px; font-weight: 800;
+            text-transform: uppercase; cursor: pointer; margin-bottom: 15px; transition: all 0.2s;
         }
-
-        button#playBtn:hover {
-            background: var(--accent);
-            color: #000;
-        }
+        button#playBtn:hover { background: var(--accent); color: #000; }
 
         #log {
-            font-family: var(--font-mono);
-            background: var(--log-bg);
-            color: var(--log-text);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            min-height: 40px;
-            white-space: pre-wrap;
-            border-left: 3px solid var(--accent);
-            margin-bottom: 15px;
+            font-family: var(--font-mono); background: var(--log-bg); color: var(--log-text);
+            padding: 10px; border-radius: 8px; font-size: 12px; min-height: 30px; white-space: pre-wrap;
+            border-left: 3px solid var(--accent); margin-bottom: 15px;
         }
 
+        /* EMULATOR UI */
+        #emulatorArea { display: none; flex-direction: column; align-items: center; width: 100%; margin-top: 10px; }
+        
+        #canvasWrapper { position: relative; width: 100%; text-align: center; }
+        
         canvas {
-            width: 100%;
-            display: none;
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            image-rendering: pixelated;
-            background: #000;
-            box-shadow: var(--shadow);
+            width: 100%; max-width: 100%; border: 1px solid var(--accent); border-radius: 8px;
+            image-rendering: pixelated; background: #000; display: block;
         }
+
+        #fullscreenBtn {
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6);
+            color: white; border: 1px solid white; padding: 5px 10px; border-radius: 5px;
+            font-size: 12px; cursor: pointer; z-index: 10;
+        }
+
+        /* MOBILE CONTROLLER */
+        #mobileController {
+            display: flex; justify-content: space-between; width: 100%; margin-top: 15px;
+            user-select: none; touch-action: none; padding: 0 10px;
+        }
+
+        .dpad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 5px; }
+        .dpad button { background: var(--border); color: var(--text); border: none; border-radius: 5px; font-size: 16px; touch-action: none; }
+        .dpad button:active { background: var(--accent); color: #000; }
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 3; }
+
+        .actions { display: grid; grid-template-columns: repeat(2, 50px); gap: 10px; align-items: end; }
+        .actions button { background: var(--border); color: var(--text); border: none; border-radius: 50%; height: 50px; width: 50px; font-weight: bold; font-size: 16px; touch-action: none; }
+        .actions button:active { background: var(--accent); color: #000; }
+        #btn-start, #btn-select { border-radius: 20px; height: 25px; width: 40px; font-size: 10px; margin-top: 10px;}
+
     </style>
 </head>
 <body>
 
-    <!-- Theme Toggle Button -->
     <button id="themeToggle">Switch to Simple GUI</button>
 
     <div class="container">
@@ -215,62 +124,77 @@
         
         <button id="playBtn">Corrupt & Play</button>
         
-        <div id="log">Ready. Please select a file.</div>
+        <div id="log">Ready.</div>
         
-        <canvas id="nes-canvas" width="256" height="240"></canvas>
+        <!-- Emulator Area -->
+        <div id="emulatorArea">
+            <div id="canvasWrapper">
+                <button id="fullscreenBtn">Fullscreen</button>
+                <canvas id="nes-canvas" width="256" height="240"></canvas>
+            </div>
+            
+            <!-- On-Screen Controller -->
+            <div id="mobileController">
+                <div class="dpad">
+                    <button id="btn-up">▲</button>
+                    <button id="btn-left">◀</button>
+                    <button id="btn-right">▶</button>
+                    <button id="btn-down">▼</button>
+                </div>
+                <div class="actions">
+                    <button id="btn-select" style="grid-column: 1; grid-row: 1;">SEL</button>
+                    <button id="btn-start" style="grid-column: 2; grid-row: 1;">STA</button>
+                    <button id="btn-b" style="grid-column: 1; grid-row: 2;">B</button>
+                    <button id="btn-a" style="grid-column: 2; grid-row: 2;">A</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- THEME SWITCHER LOGIC ---
+        // --- THEME SWITCHER ---
         const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-
-        // Check memory for saved theme
-        const currentTheme = localStorage.getItem('appTheme');
-        if (currentTheme === 'simple') {
-            body.classList.add('simple-theme');
+        if (localStorage.getItem('appTheme') === 'simple') {
+            document.body.classList.add('simple-theme');
             themeToggle.innerText = "Switch to Cool GUI";
         }
-
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('simple-theme');
-            if (body.classList.contains('simple-theme')) {
-                localStorage.setItem('appTheme', 'simple');
-                themeToggle.innerText = "Switch to Cool GUI";
-            } else {
-                localStorage.setItem('appTheme', 'cool');
-                themeToggle.innerText = "Switch to Simple GUI";
-            }
+            document.body.classList.toggle('simple-theme');
+            const isSimple = document.body.classList.contains('simple-theme');
+            localStorage.setItem('appTheme', isSimple ? 'simple' : 'cool');
+            themeToggle.innerText = isSimple ? "Switch to Cool GUI" : "Switch to Simple GUI";
         });
 
-        // --- EMULATOR & CORRUPTION LOGIC ---
+        // --- EMULATOR SETUP ---
         let romBytes = null;
+        let nes = null;
+        let frameLoopId = null;
+        let isRunning = false;
+
         const log = document.getElementById('log');
         const canvas = document.getElementById('nes-canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: false });
         const imgData = ctx.createImageData(256, 240);
-        let nes = null;
 
+        // 1. Load File
         document.getElementById('fileInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
-            log.innerText = "Reading file...";
+            log.innerText = "Reading...";
             const reader = new FileReader();
             reader.onload = (ev) => {
                 romBytes = new Uint8Array(ev.target.result);
-                log.innerText = `Loaded: ${file.name}\nSize: ${(romBytes.length/1024).toFixed(1)} KB`;
+                log.innerText = `Loaded: ${file.name} (${(romBytes.length/1024).toFixed(1)} KB)`;
             };
             reader.readAsArrayBuffer(file);
         });
 
+        // 2. Corrupt Logic (Lowered to 2% chance so it actually boots!)
         function corrupt(bytes) {
             const mode = document.getElementById('engineSelect').value;
             let out = new Uint8Array(bytes);
-            
-            // Skip NES 16-byte header
-            for (let i = 16; i < out.length; i++) {
-                if (Math.random() > 0.95) { 
+            for (let i = 16; i < out.length; i++) { // Skip 16-byte header
+                if (Math.random() > 0.98) { 
                     if (mode === 'randomize') out[i] = Math.floor(Math.random() * 256);
                     if (mode === 'zero') out[i] = 0;
                     if (mode === 'swap' && i < out.length - 1) {
@@ -281,16 +205,21 @@
             return out;
         }
 
+        // 3. Play
         document.getElementById('playBtn').addEventListener('click', () => {
-            if (!romBytes) return alert("Please select a .nes file first!");
-            
-            log.innerText += "\nCorrupting and loading...";
+            if (!romBytes) return alert("Select a .nes file first!");
+            if (isRunning) { // Stop old game
+                isRunning = false;
+                cancelAnimationFrame(frameLoopId);
+            }
+
+            log.innerText = "Corrupting and loading...";
             const glitchedRom = corrupt(romBytes);
             
             let romStr = "";
             for (let i = 0; i < glitchedRom.length; i++) romStr += String.fromCharCode(glitchedRom[i]);
 
-            canvas.style.display = 'block';
+            document.getElementById('emulatorArea').style.display = 'flex';
             
             nes = new jsnes.NES({
                 onFrame: (buffer) => {
@@ -302,23 +231,75 @@
                         imgData.data[idx+3] = 0xFF;
                     }
                     ctx.putImageData(imgData, 0, 0);
-                }
+                },
+                onAudioSample: () => {} // Prevent audio crashes
             });
 
             try {
                 nes.loadROM(romStr);
-                log.innerText = "Playing! Use your keyboard (Arrows, Z, X, Enter).";
-                const loop = () => { nes.frame(); requestAnimationFrame(loop); };
-                requestAnimationFrame(loop);
+                log.innerText = "Playing! Glitches may freeze the game, but the app will survive.";
+                isRunning = true;
+                startEmulatorLoop();
             } catch(e) {
-                log.innerText = "Error: The corruption broke the ROM completely (not a valid NES file anymore).";
+                log.innerText = "Rom crashed on load. Try a different glitch mode or less corruption.";
             }
         });
 
-        // Keyboard Controls
-        const keys = { 'ArrowUp': 4, 'ArrowDown': 5, 'ArrowLeft': 6, 'ArrowRight': 7, 'Enter': 3, 'z': 0, 'x': 1 };
-        document.addEventListener('keydown', (e) => { if (nes && keys[e.key] !== undefined) nes.buttonDown(1, keys[e.key]); });
-        document.addEventListener('keyup', (e) => { if (nes && keys[e.key] !== undefined) nes.buttonUp(1, keys[e.key]); });
+        // 4. The Anti-Freeze Loop (This fixes the gray screen!)
+        function startEmulatorLoop() {
+            function loop() {
+                if (!isRunning) return;
+                try {
+                    if (nes) nes.frame(); // Try to run a frame
+                } catch(e) {
+                    // If the corrupted game crashes, IGNORE IT and keep going!
+                }
+                frameLoopId = requestAnimationFrame(loop);
+            }
+            frameLoopId = requestAnimationFrame(loop);
+        }
+
+        // 5. Fullscreen Toggle
+        document.getElementById('fullscreenBtn').addEventListener('click', () => {
+            const elem = document.getElementById('emulatorArea');
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) elem.requestFullscreen();
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        });
+
+        // 6. CONTROLS (Keyboard & On-Screen Touch)
+        const keyMap = { 'ArrowUp': 4, 'ArrowDown': 5, 'ArrowLeft': 6, 'ArrowRight': 7, 'Enter': 3, 'Shift': 2, 'z': 0, 'x': 1 };
+        
+        // Keyboard
+        document.addEventListener('keydown', (e) => { if (nes && keyMap[e.key] !== undefined) nes.buttonDown(1, keyMap[e.key]); });
+        document.addEventListener('keyup', (e) => { if (nes && keyMap[e.key] !== undefined) nes.buttonUp(1, keyMap[e.key]); });
+
+        // Touch buttons bind
+        function bindTouch(id, buttonCode) {
+            const btn = document.getElementById(id);
+            const press = (e) => { e.preventDefault(); if(nes) nes.buttonDown(1, buttonCode); };
+            const release = (e) => { e.preventDefault(); if(nes) nes.buttonUp(1, buttonCode); };
+            
+            btn.addEventListener('touchstart', press, {passive: false});
+            btn.addEventListener('touchend', release, {passive: false});
+            btn.addEventListener('touchcancel', release, {passive: false});
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+        }
+
+        bindTouch('btn-up', 4);
+        bindTouch('btn-down', 5);
+        bindTouch('btn-left', 6);
+        bindTouch('btn-right', 7);
+        bindTouch('btn-a', 0);
+        bindTouch('btn-b', 1);
+        bindTouch('btn-start', 3);
+        bindTouch('btn-select', 2);
+
     </script>
 </body>
-</html>
+        </html>
