@@ -36,7 +36,12 @@ canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:6px;ba
 #ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.75rem ui-monospace,monospace;opacity:.8;max-width:55%;z-index:2}
 #pb{position:absolute;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:2}
 .tc{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom,0px));opacity:.6;z-index:2}
-#dp{left:22px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4)}
+#dp{left:22px;width:170px;height:170px}
+#dp::before,#dp::after{content:"";position:absolute;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.45);border-radius:12px}
+#dp::before{left:57px;top:0;width:56px;height:170px}
+#dp::after{top:57px;left:0;height:56px;width:170px}
+#dp i{position:absolute;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px;border-radius:12px;pointer-events:none;z-index:1}
+#dp i.on{background:rgba(255,255,255,.4)}
 #ab{right:22px;display:flex;gap:16px;align-items:flex-end}
 #ss{left:50%;transform:translateX(-50%);display:flex;gap:12px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
 .bt{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.45);font:700 20px ui-monospace,monospace;display:flex;align-items:center;justify-content:center;touch-action:none}
@@ -75,7 +80,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.9rem}
 
 <div class="c" id="ctl" hidden>
 <h2>2. How wild?</h2>
-<div class="seg" id="pre"><button type="button" data-v="-2">Mild</button><button type="button" data-v="-1.2" class="on">Medium</button><button type="button" data-v="-0.3">Wild</button></div>
+<div class="seg" id="pre"><button type="button" data-v="-1.7">Mild</button><button type="button" data-v="-1" class="on">Medium</button><button type="button" data-v="-0.2">Wild</button></div>
 <button class="big" id="roll" type="button" style="margin-top:10px">🎲 New glitch</button>
 <div class="k" id="stat"></div>
 <details><summary>Advanced</summary>
@@ -93,7 +98,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.9rem}
 <option value="copy">Copy blocks</option>
 </select>
 <label for="amt">Intensity: <span id="pct"></span></label>
-<input type="range" id="amt" min="-3" max="1" step="0.05" value="-1.2">
+<input type="range" id="amt" min="-3" max="1" step="0.05" value="-1">
 <label for="seed">Seed (same seed = same glitch)</label>
 <input type="text" id="seed" autocapitalize="off" autocomplete="off">
 <canvas id="map" width="512" height="28"></canvas>
@@ -121,8 +126,8 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.9rem}
 <div id="rg"></div>
 <div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
 </div>
-<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
-<div class="tc" id="dp"></div>
+<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div class="tc" id="dp"><i style="left:57px;top:0">▲</i><i style="left:57px;bottom:0">▼</i><i style="left:0;top:57px">◀</i><i style="right:0;top:57px">▶</i></div>
 <div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
 <div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
 </div>
@@ -190,6 +195,7 @@ $('f').addEventListener('change',async e=>{
     $('inf').textContent=name+' · '+(rom.length/1024).toFixed(0)+' KB · '+info.sys+' · header '+info.hdr+' B';
     $('reg').innerHTML='';
     info.regions.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r[0];$('reg').appendChild(o)});
+    const ci=info.regions.findIndex(r=>r[0].startsWith('CHR'));if(ci>0)$('reg').value=ci;
     $('ctl').hidden=false;$('sv').hidden=false;msg('');newSeed();run();
   }catch(err){$('inf').textContent='Could not read that file.'}
 });
@@ -257,8 +263,8 @@ function closeP(){stopP();$('pl').classList.remove('on');if(ac)ac.suspend()}
 function loop(t){
   raf=requestAnimationFrame(loop);poll();
   acc=Math.min(acc+t-last,100);last=t;
-  try{while(acc>=16.64){for(const a in fz)nes.cpu.mem[a]=fz[a];if(!paused)nes.frame();acc-=16.64}if(!$('rm').hidden&&++rtick%12==0)rmRender()}
-  catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' (tap New glitch)')}
+  try{while(acc>=16.64){for(const a in fz)nes.cpu.mem[a]=fz[a];if(!paused)nes.frame();acc-=16.64;if(nes.crashMessage)throw new Error(nes.crashMessage)}if(!$('rm').hidden&&++rtick%12==0)rmRender()}
+  catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' · tap New glitch, or try Mild')}
 }
 function playNES(){
   if(typeof jsnes==='undefined'){msg('NES engine missing. Re-run the build so jsnes.min.js gets bundled.');return}
@@ -297,8 +303,9 @@ document.querySelectorAll('.bt[data-b]').forEach(el=>{
 });
 const dp=$('dp');
 function dir(e){const r=dp.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-  set('t',6,x<-.15);set('t',7,x>.15);set('t',4,y<-.15);set('t',5,y>.15)}
-const dpOff=()=>[4,5,6,7].forEach(b=>set('t',b,false));
+  set('t',6,x<-.15);set('t',7,x>.15);set('t',4,y<-.15);set('t',5,y>.15);lit()}
+const lit=()=>[...dp.children].forEach((c,i)=>c.classList.toggle('on',!!srcs.t[4+i]));
+const dpOff=()=>{[4,5,6,7].forEach(b=>set('t',b,false));lit()};
 dp.addEventListener('pointerdown',e=>{e.preventDefault();dp.setPointerCapture(e.pointerId);dir(e)});
 dp.addEventListener('pointermove',e=>{if(dp.hasPointerCapture(e.pointerId))dir(e)});
 ['pointerup','pointercancel'].forEach(t=>dp.addEventListener(t,dpOff));
@@ -315,6 +322,7 @@ addEventListener('gamepadconnected',e=>status('Controller: '+e.gamepad.id.slice(
 $('bp').addEventListener('click',play);
 $('px2').addEventListener('click',()=>{newSeed();run();play()});
 $('pc').addEventListener('click',closeP);
+$('pcl').addEventListener('click',()=>{if(!rom)return;const k=out;out=rom.slice();play();out=k;status('Original game, no glitch')});
 
 /* ---- presets + tutorial ---- */
 const mark=()=>document.querySelectorAll('#pre button').forEach(b=>b.classList.toggle('on',+b.dataset.v===+$('amt').value));
