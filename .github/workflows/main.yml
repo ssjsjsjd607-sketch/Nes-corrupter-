@@ -18,34 +18,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Project Dependencies
+      - name: Install Hardened Dependencies
         run: |
           npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 @capacitor/android@5.7.0
 
-      - name: Run Build Layer Preparation Script
+      - name: Run Build Preparation
         run: |
           npm run build
 
-      - name: Force Generate Android Native Directory Container
+      - name: Generate Native Android Directory Framework
         run: |
-          npx cap init "Nexus Corruptor" "com.nexus.corruptor" --web-dir=www || true
-          npx cap add android || true
-          npx cap sync android
-
-      - name: Create Native Build Scripts From Scratch
-        run: |
-          mkdir -p android/app/src/main/assets/public
-          cp -r www/* android/app/src/main/assets/public/ || true
-          # Injecting a universal lightweight compiler script fallback to guarantee an APK output
-          cat << 'EOF' > build_apk.sh
-          #!/bin/bash
-          echo "Packing universal assets into release shell..."
-          zip -r app-debug.apk www/*
-          mv app-debug.apk www/
-          EOF
-          chmod +x build_apk.sh
-          ./build_apk.sh
+          npx cap init "Nexus Corruptor" "com.nexus.corruptor" --web-dir=www
+          npx cap add android
 
       - name: Setup Java Development Kit (JDK 17)
         uses: actions/setup-java@v4
@@ -53,16 +38,11 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Compile and Assemble Binary APK Package
+      - name: Compile Real Native Android APK
         run: |
-          if [ -d "android" ] && [ -f "android/gradlew" ]; then
-            cd android
-            chmod +x gradlew
-            ./gradlew assembleDebug || (cd .. && zip -r app-debug.apk www/* && mkdir -p android/app/build/outputs/apk/debug/ && mv app-debug.apk android/app/build/outputs/apk/debug/app-debug.apk)
-          else
-            mkdir -p android/app/build/outputs/apk/debug/
-            zip -r android/app/build/outputs/apk/debug/app-debug.apk www/*
-          fi
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload Finished Android APK Artifact
         uses: actions/upload-artifact@v4
@@ -100,7 +80,7 @@ jobs:
           Maintainer: Developer <nexus@corruptor.local>
           Description: Universal Multi-System ROM and ISO Glitch Engine
           EOF
-          cp -r www/* build-linux/nexus-corruptor/usr/local/bin/ || true
+          if [ -d "www" ]; then cp -r www/* build-linux/nexus-corruptor/usr/local/bin/ || true; fi
           dpkg-deb --build build-linux/nexus-corruptor
           mv build-linux/nexus-corruptor.deb ./nexus-corruptor.deb
 
