@@ -10,7 +10,9 @@
     "start": "electron .",
     "dist:win": "electron-builder --win --publish never",
     "dist:linux": "electron-builder --linux --publish never",
-    "postinstall": "node prepare.js"
+    "postinstall": "node prepare.js",
+    "capacitor:sync:after": "node patch-android.js",
+    "capacitor:copy:after": "node patch-android.js"
   },
   "devDependencies": {
     "electron": "^33.0.0",
