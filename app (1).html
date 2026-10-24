@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ROM Corrupter</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ROM Corrupter">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23c2362b'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' font-family='monospace' fill='white'%3E%3F%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b0b14;--fg:#f3f2fc;--mut:#9f9dba;--card:rgba(255,255,255,.06);--bd:rgba(255,255,255,.13);--in:rgba(255,255,255,.07);--ac:#ff3d7f;--ac2:#22d3ee;--vi:#8b5cf6;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root{--bg:#f4f3fb;--fg:#17152b;--mut:#67648a;--card:rgba(255,255,255,.82);--bd:rgba(40,30,110,.14);--in:rgba(40,30,110,.06);color-scheme:light}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:22px 16px 44px;min-height:100vh;background:radial-gradient(900px 480px at 0% -8%,rgba(255,61,127,.28),transparent 60%),radial-gradient(800px 460px at 100% 0%,rgba(34,211,238,.22),transparent 58%),var(--bg)}
+main{max-width:560px;margin:0 auto}
+h1{font:800 1.75rem/1.1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.05em;margin:4px 0 8px;text-shadow:2px 0 var(--ac),-2px 0 var(--ac2)}
+p.s{color:var(--mut);margin:0 0 20px;font-size:.92rem}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+h2{display:flex;align-items:center;font-size:1.05rem;margin:0 0 14px}
+.nb{display:inline-flex;width:28px;height:28px;border-radius:10px;align-items:center;justify-content:center;margin-right:10px;font-size:.85rem;background:linear-gradient(135deg,var(--ac),var(--vi));color:#fff}
+label{display:block;font-size:.72rem;color:var(--mut);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.08em}
+select,input[type=text],input[type=file]{width:100%;font:inherit;color:var(--fg);background:var(--in);border:1px solid var(--bd);border-radius:14px;padding:12px}
+select option{background:#1a1830;color:#fff}
+input[type=file]::file-selector-button{font:inherit;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--ac),var(--vi));border:0;border-radius:10px;padding:8px 14px;margin-right:12px}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.r{display:flex;gap:8px}
+button{font:inherit;font-weight:600;border-radius:14px;border:1px solid var(--bd);background:var(--in);color:var(--fg);padding:12px 16px;cursor:pointer;transition:transform .08s,filter .15s}
+button:active{transform:scale(.97);filter:brightness(1.15)}
+button.p{background:linear-gradient(135deg,var(--ac),var(--vi));border:0;color:#fff;box-shadow:0 8px 24px rgba(255,61,127,.35)}
+.big{width:100%;padding:15px;font-size:1.05rem}
+#roll{background:transparent;border-color:var(--ac2);color:var(--ac2)}
+.seg{display:flex;gap:4px;background:var(--in);padding:4px;border-radius:16px}
+.seg button{flex:1;border:0;background:transparent;padding:10px}
+.seg button.on{background:linear-gradient(135deg,var(--ac),var(--vi));color:#fff;box-shadow:0 4px 14px rgba(139,92,246,.4)}
+.k{font:.82rem/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--mut);margin-top:10px;word-break:break-word}
+canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:8px;background:var(--in);border:1px solid var(--bd)}
+.n{font-size:.8rem;color:var(--mut)}
+details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;font-weight:600}
+.lk{background:none;border:0;color:var(--mut);text-decoration:underline;font-weight:400;padding:8px}
+#tu{position:fixed;inset:0;z-index:20;background:rgba(5,5,12,.72);display:none;align-items:center;justify-content:center;padding:20px}
+#tu.on{display:flex}
+#tc{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:26px;padding:26px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#ti{font-size:3.2rem;line-height:1.1}
+#tx{margin:8px 0 0;line-height:1.55;color:var(--mut)}
+.dots{display:flex;gap:6px;justify-content:center;margin:18px 0}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--bd)}.dots i.on{width:22px;border-radius:6px;background:linear-gradient(90deg,var(--ac),var(--vi))}
+#pl{position:fixed;inset:0;background:#000;z-index:9;display:none;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff}
+#pl.on{display:block}
+#cv{position:absolute;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);width:min(100vw,106.6vh);aspect-ratio:256/240;height:auto;image-rendering:pixelated;background:#111;border:0;border-radius:0}
+#pl[data-m=nes] #pbk{display:none}
+#pl[data-m=snes] .tc,#pl[data-m=snes] #cv,#pl[data-m=snes] #pa{display:none}
+#ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.82rem ui-monospace,monospace;max-width:44%;z-index:2;background:rgba(10,10,20,.6);padding:6px 10px;border-radius:12px}
+#pb{position:absolute;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:54%;z-index:2}
+#pb button{padding:8px 12px;font-size:.78rem;background:rgba(20,20,36,.6);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px}
+.tc{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));opacity:.75;z-index:2}
+#dp{left:22px;width:170px;height:170px}
+#dp::before,#dp::after{content:"";position:absolute;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.4);border-radius:14px;}
+#dp::before{left:57px;top:0;width:56px;height:170px}
+#dp::after{top:57px;left:0;height:56px;width:170px}
+#dp i{position:absolute;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:20px;border-radius:14px;pointer-events:none;z-index:1;color:rgba(255,255,255,.85)}
+#dp i.on{background:rgba(255,255,255,.35)}
+#ab{right:22px;display:flex;gap:18px;align-items:flex-end}
+#ss{left:50%;transform:translateX(-50%);display:flex;gap:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.bt{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.45);font:800 20px ui-monospace,monospace;display:flex;align-items:center;justify-content:center;touch-action:none;}
+#bA{margin-bottom:38px;background:rgba(255,61,127,.35);border-color:var(--ac)}
+#bB{background:rgba(34,211,238,.28);border-color:var(--ac2)}
+.sb{width:auto;height:auto;padding:8px 16px;border-radius:14px;font-size:12px}
+#rm{position:absolute;z-index:3;right:8px;top:calc(96px + env(safe-area-inset-top,0px));width:min(380px,96vw);max-height:56vh;overflow:auto;background:rgba(10,10,20,.92);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:8px;font:12px ui-monospace,monospace;color:#fff}
+#rm .r{align-items:center;flex-wrap:wrap;gap:6px}
+#rm button{padding:6px 9px;font-size:12px;background:#2a2840;color:#fff;border-color:#555}
+#rg{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;margin:8px 0}
+#rg span{padding:6px 0;text-align:center;background:#1c1b2e;cursor:pointer}
+#rg .sel{outline:2px solid #fff}#rg .fz{background:var(--ac)}
+#rv{width:56px;padding:6px;background:#1c1b2e;color:#fff;border:1px solid #666;border-radius:8px;font:inherit}
+</style></head>
+<body><main>
+<h1>ROM CORRUPTER</h1>
+<p class="s">Scramble a retro game (NES, SNES, N64, Game Boy, GBA, DS, Genesis, PS1), then play it. NES works offline; the other systems need internet the first time. Use games you own.</p>
+
+<div class="c">
+<h2><b class="nb">1</b>Choose a game</h2>
+<input type="file" id="f">
+<div class="k" id="inf">Pick a game file, like .nes, .sfc, .z64, .gba or .iso</div>
+</div>
+
+<div class="c" id="ctl" hidden>
+<h2><b class="nb">2</b>How wild?</h2>
+<div class="seg" id="pre"><button type="button" data-v="-1.7" data-r="auto" data-m="smart">Mild</button><button type="button" data-v="-1" data-r="auto" data-m="smart" class="on">Medium</button><button type="button" data-v="-0.2" data-r="auto" data-m="smart">Wild</button><button type="button" data-v="1.3" data-r="all" data-m="mix">☠ Extreme</button></div>
+<button class="big" id="roll" type="button" style="margin-top:10px">🎲 New glitch</button>
+<div class="k" id="stat"></div>
+<details><summary>Advanced</summary>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="rme"> RAM editor while playing (NES only)</label>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="fast"> Faster mode, no sound (for slow devices)</label>
+<label for="eng">NES engine</label>
+<select id="eng"><option value="auto">Auto (switches to fast if the game lags)</option><option value="fast">Fast (needs internet the first time)</option><option value="js">Built-in (works offline)</option></select>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="hdrc"> ☠ Danger: corrupt everything, even the header</label>
+<label for="reg">Region</label><select id="reg"></select>
+<p class="n" style="margin:4px 0 0">For NES, “CHR only” gives picture glitches that rarely crash.</p>
+<label for="mode">Corruption mode</label>
+<select id="mode">
+<option value="smart">Smart graphics glitch</option>
+<option value="mix">Chaos mix (everything)</option>
+<option value="tiles">Tile shuffle</option>
+<option value="plane">Bitplane swap</option>
+<option value="invert">Invert runs</option>
+<option value="smear">Smear bytes</option>
+<option value="rev">Reverse runs</option>
+<option value="rotate">Shift blocks</option>
+<option value="rand">Random bytes</option>
+<option value="flip">Bit flips</option>
+<option value="step">Nudge +1 / −1</option>
+<option value="swap">Swap neighbours</option>
+<option value="fill">Fill runs (00 / FF)</option>
+<option value="copy">Copy blocks</option>
+</select>
+<label for="amt">Intensity: <span id="pct"></span></label>
+<input type="range" id="amt" min="-3" max="2" step="0.05" value="-1">
+<label for="seed">Seed (same seed = same glitch)</label>
+<input type="text" id="seed" autocapitalize="off" autocomplete="off">
+<canvas id="map" width="512" height="28"></canvas>
+</details>
+</div>
+
+<div class="c" id="sv" hidden>
+<h2><b class="nb">3</b>Play or save</h2>
+<button class="p big" id="bp" type="button">▶ Play</button>
+<div class="r" style="margin-top:8px"><button id="bz" type="button" style="flex:1">Save</button><button id="bt" type="button" style="flex:1">Share</button></div>
+<div style="text-align:center"><button class="lk" id="bzip" type="button">Having trouble saving? Save as .zip</button></div>
+<p class="n" style="margin:10px 0 0">Many glitches won’t start. That’s normal: tap New glitch or pick Mild.</p>
+<div class="k" id="msg"></div>
+</div>
+
+<div style="text-align:center"><button class="lk" id="hp" type="button">How to use this app</button></div>
+</main>
+<div id="tu"><div id="tc"><div id="ti"></div><h2 id="tt" style="font-size:1.3rem;margin:8px 0 0"></h2><p id="tx"></p><div class="dots" id="td"></div>
+<div class="r"><button id="tk" type="button">Skip</button><button id="tb" type="button">Back</button><button class="p" id="tn" type="button" style="flex:1">Next</button></div></div></div>
+<div id="pl" data-m="nes">
+<canvas id="cv" width="256" height="240"></canvas>
+<iframe id="sf" hidden allow="gamepad; autoplay; fullscreen" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+<div id="ps"></div>
+<div id="rm" hidden>
+<div class="r"><button id="rp0" type="button">◀</button><span id="rpg"></span><button id="rp1" type="button">▶</button><button id="rpa" type="button">Pause</button><button id="rsc" type="button">Scramble</button></div>
+<div id="rg"></div>
+<div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
+</div>
+<div id="pb"><button id="pr" type="button" hidden>RAM</button><button id="psv" type="button">Save</button><button id="pa" type="button">Alt engine</button><button id="pbk" type="button">Built-in engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div class="tc" id="dp"><i style="left:57px;top:0">▲</i><i style="left:57px;bottom:0">▼</i><i style="left:0;top:57px">◀</i><i style="right:0;top:57px">▶</i></div>
+<div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
+<div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
+</div>
+<script src="jsnes.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let rom=null,info=null,out=null,name='rom.bin';
+
+const SYS={nes:['NES','nes'],sfc:['SNES','snes'],smc:['SNES','snes'],swc:['SNES','snes'],fig:['SNES','snes'],
+  z64:['Nintendo 64','n64'],n64:['Nintendo 64','n64'],v64:['Nintendo 64','n64'],
+  gb:['Game Boy','gb'],gbc:['Game Boy Color','gb'],gba:['Game Boy Advance','gba'],nds:['Nintendo DS','nds'],
+  md:['Genesis','segaMD'],gen:['Genesis','segaMD'],smd:['Genesis','segaMD'],
+  iso:['PlayStation 1','psx'],img:['PlayStation 1','psx'],pbp:['PlayStation 1','psx'],chd:['PlayStation 1','psx']};
+const SKIP={n64:0x1000,gb:0x150,gba:0xC0,nds:0x4000,segaMD:0x200,psx:0x10000};
+function detect(b,fn){
+  const ext=fn.split('.').pop().toLowerCase();
+  if(b[0]==0x4E&&b[1]==0x45&&b[2]==0x53&&b[3]==0x1A){
+    const hdr=16+(b[6]&4?512:0),prg=b[4]*16384,chr=b[5]*8192;
+    const r=[['Whole ROM (skip header)',hdr,b.length-hdr]];
+    if(prg&&hdr+prg<=b.length)r.push(['PRG only (code: crashes, odd behaviour)',hdr,prg]);
+    if(chr&&hdr+prg+chr<=b.length)r.push(['CHR only (graphics glitches)',hdr+prg,chr]);
+    return{sys:'NES (iNES)'+(chr?'':', CHR-RAM'),hdr,regions:r,core:'nes',ext:'nes'};
+  }
+  let k=SYS[ext];
+  if(!k&&ext=='bin')k=b.length>5e6?['PlayStation 1','psx']:['Genesis','segaMD'];
+  const c512=b.length%1024==512;
+  if(!k&&(c512||b.length%32768==0))k=['SNES','snes'];
+  if(!k)return{sys:'Unknown format (corruption only, no playing)',hdr:0,regions:[['Whole file',0,b.length]],core:null,ext};
+  const core=k[1];
+  const hdr=Math.min(core=='snes'?(c512?512:0):(SKIP[core]||0),b.length>>1);
+  return{sys:k[0]+(core=='snes'&&hdr?' (512-byte copier header)':''),hdr,regions:[['Whole file'+(hdr?' (skip header)':''),hdr,b.length-hdr]],core,ext};
+}
+
+function rng(s){
+  let h=1779033703^s.length;
+  for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}
+  let a=h|0;
+  return()=>{a=(a+0x6D2B79F5)|0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}
+}
+
+function run(){
+  if(!rom)return;
+  let[,st,len]=info.regions[+$('reg').value];
+  if($('hdrc').checked){st=0;len=rom.length}
+  const end=st+len;
+  const R=rng($('seed').value),pct=Math.pow(10,+$('amt').value);
+  $('pct').textContent=(pct<1?pct.toFixed(3):pct.toFixed(1))+'% of region';
+  const n=Math.min(400000,Math.max(1,Math.round(len*pct/100))),m=$('mode').value;
+  const ALL=['rand','flip','step','swap','fill','copy','tiles','invert','rotate','plane','smear','rev'],SM=['tiles','plane','invert','smear','rev','flip','copy'];
+  out=rom.slice();
+  for(let k=0;k<n;k++){
+    const md=m=='mix'?ALL[Math.floor(R()*ALL.length)]:m=='smart'?SM[Math.floor(R()*SM.length)]:m;
+    const i=st+Math.floor(R()*len);
+    if(md=='rand')out[i]=R()*256;
+    else if(md=='flip')out[i]^=1<<Math.floor(R()*8);
+    else if(md=='step')out[i]+=R()<.5?1:-1;
+    else if(md=='swap'){if(i+1<end){const t=out[i];out[i]=out[i+1];out[i+1]=t}}
+    else if(md=='fill'){out.fill(R()<.5?0:255,i,Math.min(i+1+Math.floor(R()*16),end))}
+    else if(md=='tiles'||md=='plane'){
+      const a=st+Math.floor(R()*len/16)*16;
+      if(md=='plane'){if(a+16<=end)for(let j=0;j<8;j++){const t=out[a+j];out[a+j]=out[a+8+j];out[a+8+j]=t}}
+      else{const c=st+Math.floor(R()*len/16)*16;if(a+16<=end&&c+16<=end)for(let j=0;j<16;j++){const t=out[a+j];out[a+j]=out[c+j];out[c+j]=t}}
+    }
+    else if(md=='invert'){const e=Math.min(i+8+Math.floor(R()*56),end);for(let j=i;j<e;j++)out[j]^=255}
+    else if(md=='rotate'){const e=Math.min(i+8+Math.floor(R()*120),end);if(e-i>1){const t=out[e-1];for(let j=e-1;j>i;j--)out[j]=out[j-1];out[i]=t}}
+    else if(md=='smear'){out.fill(out[i],i,Math.min(i+2+Math.floor(R()*30),end))}
+    else if(md=='rev'){const e=Math.min(i+8+Math.floor(R()*24),end);if(e-i>1)out.subarray(i,e).reverse()}
+    else if(md=='copy'){const s=st+Math.floor(R()*len),e=Math.min(1+Math.floor(R()*32),end-s,end-i);if(e>0)out.set(rom.subarray(s,s+e),i)}
+  }
+  const B=new Uint32Array(512);let d=0;
+  for(let i=0;i<rom.length;i++)if(rom[i]!==out[i]){d++;B[Math.floor(i*512/rom.length)]++}
+  $('stat').textContent=d.toLocaleString()+' of '+rom.length.toLocaleString()+' bytes changed';
+  const cv=$('map'),x=cv.getContext('2d');
+  x.clearRect(0,0,512,28);
+  x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ac');
+  const mx=Math.max(1,...B);
+  for(let i=0;i<512;i++)if(B[i]){const h=Math.max(3,28*Math.sqrt(B[i]/mx));x.fillRect(i,28-h,1,h)}
+}
+
+function newSeed(){$('seed').value=Math.random().toString(36).slice(2,8)}
+function msg(t){$('msg').textContent=t;if($('pl').classList.contains('on'))status(t)}
+
+$('f').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>268435456){$('inf').textContent='That file is too big for this app (limit 256 MB).';return}
+  try{
+    rom=new Uint8Array(await f.arrayBuffer());name=f.name;info=detect(rom,name);
+    $('inf').textContent=name+' · '+(rom.length/1024).toFixed(0)+' KB · '+info.sys+' · header '+info.hdr+' B';
+    $('reg').innerHTML='';
+    info.regions.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r[0];$('reg').appendChild(o)});
+    const ci=info.regions.findIndex(r=>r[0].startsWith('CHR'));if(ci>0)$('reg').value=ci;
+    $('ctl').hidden=false;$('sv').hidden=false;msg('');newSeed();run();
+  }catch(err){$('inf').textContent='Could not read that file.'}
+});
+let rt=0;const runD=()=>{clearTimeout(rt);rt=setTimeout(run,150)};
+['reg','mode','amt','seed'].forEach(id=>$(id).addEventListener('input',runD));
+$('roll').addEventListener('click',()=>{newSeed();run()});
+
+const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=~0;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(~c)>>>0}
+function zip(fn,data){
+  const nb=new TextEncoder().encode(fn),crc=crc32(data),n=nb.length,s=data.length;
+  const lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(12,0x21,true);
+  lh.setUint32(14,crc,true);lh.setUint32(18,s,true);lh.setUint32(22,s,true);lh.setUint16(26,n,true);
+  const cd=new DataView(new ArrayBuffer(46));
+  cd.setUint32(0,0x02014b50,true);cd.setUint16(4,20,true);cd.setUint16(6,20,true);cd.setUint16(8,0x0800,true);cd.setUint16(14,0x21,true);
+  cd.setUint32(16,crc,true);cd.setUint32(20,s,true);cd.setUint32(24,s,true);cd.setUint16(28,n,true);
+  const eo=new DataView(new ArrayBuffer(22));
+  eo.setUint32(0,0x06054b50,true);eo.setUint16(8,1,true);eo.setUint16(10,1,true);eo.setUint32(12,46+n,true);eo.setUint32(16,30+n+s,true);
+  return new Blob([lh,nb,data,cd,nb,eo]);
+}
+async function saveZip(){
+  if(!out)return;const n=fname(),z=new Uint8Array(await zip(n,out).arrayBuffer()),zn=n.replace(/\.[^.]+$/,'')+'.zip';
+  native()?nativeSave(z,zn):anchorSave(z,zn,'application/zip');
+}
+function fname(){
+  const i=name.lastIndexOf('.'),base=(i>0?name.slice(0,i):name),ext=i>0?name.slice(i):'.bin';
+  const sd=($('seed').value.replace(/[^a-z0-9]/gi,'')||'x').slice(0,12);
+  return (base+'_corrupt_'+sd+ext).replace(/[^A-Za-z0-9._-]+/g,'_');
+}
+const native=()=>!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+function anchorSave(data=out,n=fname(),mime='application/octet-stream'){
+  const url=URL.createObjectURL(new Blob([data],{type:mime}));
+  const a=document.createElement('a');a.href=url;a.download=n;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  msg('Saved as '+n);
+}
+async function nativeShare(data=out,n=fname()){
+  const P=window.Capacitor.Plugins,em=e=>String(e&&e.message||e);
+  try{
+    const r=await P.Filesystem.writeFile({path:n,data:btoa(bin(data)),directory:'CACHE'});
+    try{await P.Share.share({title:n,files:[r.uri]})}
+    catch(e){if(/cancel/i.test(em(e)))return;await P.Share.share({title:n,url:r.uri})}
+  }catch(e){if(/cancel/i.test(em(e)))return;throw e}
+}
+async function nativeSave(data=out,n=fname()){
+  const C=window.Capacitor,P=C.Plugins,em=e=>String(e&&e.message||e);
+  const ios=!!(C.getPlatform&&C.getPlatform()==='ios'),b=()=>btoa(bin(data));
+  let err='';
+  if(!ios&&P.SaveFile){
+    try{await P.SaveFile.save({name:n,data:b(),mime:/\.zip$/i.test(n)?'application/zip':'application/octet-stream'});msg('Saved to your Downloads folder: '+n);return}
+    catch(e){err=em(e)}
+  }
+  if(!ios){
+    try{await P.Filesystem.writeFile({path:'ROMCorrupter/'+n,data:b(),directory:'DOCUMENTS',recursive:true});msg('Saved to Documents/ROMCorrupter/'+n);return}
+    catch(e){err+=' | '+em(e)}
+  }
+  try{await nativeShare(data,n);msg(ios?'Choose “Save to Files”.':'Sent through the share menu.');return}
+  catch(e){err+=' | '+em(e)}
+  msg('Could not save: '+err+' (try Save as .zip)');
+}
+function save(){if(!out)return;native()?nativeSave():anchorSave()}
+async function share(){
+  if(!out)return;
+  if(native()){try{await nativeShare()}catch(e){msg('Could not share: '+(e&&e.message||e))}return}
+  try{
+    const f=new File([out],fname(),{type:'application/octet-stream'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});msg('Shared.')}
+    else{save()}
+  }catch(e){if(!e||e.name!=='AbortError')save()}
+}
+$('bz').addEventListener('click',save);
+$('bt').addEventListener('click',share);
+
+/* ---- player: NES via jsnes, SNES via EmulatorJS (online) ---- */
+let dr=true,slow=0,nes=null,raf=0,ac=null,last=0,acc=0,blobUrl='';
+const AL=new Float32Array(8192),AR=new Float32Array(8192);let aw=0,ar=0;
+const srcs={t:{},k:{},g:{}},cur={};
+const status=t=>{$('ps').textContent=t};
+function set(s,b,on){srcs[s][b]=on;const a=!!(srcs.t[b]||srcs.k[b]||srcs.g[b]);if(!nes||a===!!cur[b])return;cur[b]=a;a?nes.buttonDown(1,b):nes.buttonUp(1,b)}
+function audioOn(){
+  if(ac){ac.resume();return}
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  ac=new AC();const sp=ac.createScriptProcessor(2048,0,2);
+  sp.onaudioprocess=e=>{const L=e.outputBuffer.getChannelData(0),R=e.outputBuffer.getChannelData(1);
+    for(let i=0;i<L.length;i++){if(ar<aw){L[i]=AL[ar&8191];R[i]=AR[ar&8191];ar++}else{L[i]=R[i]=0}}};
+  sp.connect(ac.destination);
+}
+function bin(u){let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return s}
+function stopP(){
+  cancelAnimationFrame(raf);raf=0;nes=null;
+  for(const k in cur)cur[k]=false;
+  $('sf').hidden=true;$('sf').srcdoc='';
+  if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=''}
+}
+function closeP(){stopP();$('pl').classList.remove('on');if(ac)ac.suspend()}
+function loop(t){
+  raf=requestAnimationFrame(loop);poll();
+  acc+=t-last;last=t;
+  try{
+    const k=Math.min(2,Math.floor(acc/16.64));
+    for(let j=0;j<k;j++){
+      for(const a in fz)nes.cpu.mem[a]=fz[a];
+      dr=j==k-1;if(!paused)nes.frame();acc-=16.64;
+      if(nes.crashMessage)throw new Error(nes.crashMessage);
+    }
+    if(acc>33){
+      acc=16.64;slow++;
+      if(slow>=45&&nes.opts&&nes.opts.emulateSound){nes.opts.emulateSound=false;status('Slow device: sound turned off to run faster')}
+      if(slow>=150&&$('eng').value=='auto'&&navigator.onLine!==false){playEJS('nes');status('Still slow, switched to the fast engine');return}
+    }else if(slow>0)slow=Math.max(0,slow-0.1);
+    if(!$('rm').hidden&&++rtick%12==0)rmRender();
+  }catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' · tap Alt engine or New glitch')}
+}
+function playNES(){
+  if($('eng').value=='fast'){playEJS('nes');return}
+  if(typeof jsnes==='undefined'){playEJS('nes');status('Built-in NES engine missing, using alternate engine (needs internet)');return}
+  stopP();audioOn();aw=ar=0;
+  const ctx=$('cv').getContext('2d',{alpha:false}),img=ctx.createImageData(256,240),u32=new Uint32Array(img.data.buffer);
+  try{
+    nes=new jsnes.NES({
+      onFrame:f=>{if(!dr)return;for(let i=0;i<61440;i++)u32[i]=0xFF000000|f[i];ctx.putImageData(img,0,0)},
+      onAudioSample:(l,r)=>{if(aw-ar>8000)ar=aw-2000;AL[aw&8191]=l;AR[aw&8191]=r;aw++},
+      sampleRate:ac?ac.sampleRate:44100,emulateSound:!$('fast').checked});
+    if(typeof nes.stop!=='function')nes.stop=()=>{};
+    nes.loadROM(bin(out));
+  }catch(e){nes=null;playEJS('nes');status('Built-in engine failed ('+(e.message||e)+'). Using alternate engine.');return}
+  fz={};rsel=-1;paused=false;$('rpa').textContent='Pause';$('rm').hidden=true;$('pr').hidden=!$('rme').checked;
+  $('pl').dataset.m='nes';$('pl').classList.add('on');
+  status('Seed '+$('seed').value+' · '+(navigator.getGamepads&&[...navigator.getGamepads()].some(g=>g)?'controller ready':'press a controller button to connect'));
+  slow=0;last=performance.now();acc=0;raf=requestAnimationFrame(loop);
+}
+function playEJS(core){
+  stopP();blobUrl=URL.createObjectURL(new Blob([out]));
+  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch.'+((info&&info.ext)||'bin')+'";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
+  $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
+  $('pl').dataset.m='snes';$('pl').classList.add('on');
+  status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
+}
+function playSNES(){playEJS('snes')}
+function play(){
+  if(!out)return;
+  if(info.core=='nes')playNES();
+  else if(info.core)playEJS(info.core);
+  else msg('This file type can be corrupted and saved, but not played here.');
+}
+/* controls: touch, keyboard, Bluetooth/USB gamepad */
+document.querySelectorAll('.bt[data-b]').forEach(el=>{
+  const b=+el.dataset.b;
+  el.addEventListener('pointerdown',e=>{e.preventDefault();set('t',b,true)});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,()=>set('t',b,false)));
+});
+const dp=$('dp');
+function dir(e){const r=dp.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+  set('t',6,x<-.15);set('t',7,x>.15);set('t',4,y<-.15);set('t',5,y>.15);lit()}
+const lit=()=>[...dp.children].forEach((c,i)=>c.classList.toggle('on',!!srcs.t[4+i]));
+const dpOff=()=>{[4,5,6,7].forEach(b=>set('t',b,false));lit()};
+dp.addEventListener('pointerdown',e=>{e.preventDefault();dp.setPointerCapture(e.pointerId);dir(e)});
+dp.addEventListener('pointermove',e=>{if(dp.hasPointerCapture(e.pointerId))dir(e)});
+['pointerup','pointercancel'].forEach(t=>dp.addEventListener(t,dpOff));
+const KM={ArrowUp:4,ArrowDown:5,ArrowLeft:6,ArrowRight:7,KeyX:0,KeyZ:1,ShiftLeft:2,ShiftRight:2,Enter:3};
+['keydown','keyup'].forEach(t=>addEventListener(t,e=>{if(nes&&e.code in KM){e.preventDefault();set('k',KM[e.code],t=='keydown')}}));
+let hadG=false;
+function poll(){
+  const gs=navigator.getGamepads?navigator.getGamepads():[];let g=null;
+  for(let i=0;i<gs.length;i++)if(gs[i]&&gs[i].connected){g=gs[i];break}
+  if(!g){if(hadG){hadG=false;for(let b=0;b<8;b++)set('g',b,false)}return}
+  hadG=true;
+  const p=i=>!!(g.buttons[i]&&g.buttons[i].pressed),ax=g.axes[0]||0,ay=g.axes[1]||0;
+  set('g',0,p(0)||p(1));set('g',1,p(2)||p(3));set('g',2,p(8));set('g',3,p(9));
+  set('g',4,p(12)||ay<-.5);set('g',5,p(13)||ay>.5);set('g',6,p(14)||ax<-.5);set('g',7,p(15)||ax>.5);
+}
+addEventListener('gamepadconnected',e=>status('Controller: '+e.gamepad.id.slice(0,40)));
+$('bp').addEventListener('click',play);
+$('px2').addEventListener('click',()=>{newSeed();run();play()});
+$('pc').addEventListener('click',closeP);
+$('psv').addEventListener('click',save);
+$('bzip').addEventListener('click',saveZip);
+$('pa').addEventListener('click',()=>playEJS('nes'));
+$('pbk').addEventListener('click',()=>{$('eng').value='js';playNES()});
+$('pcl').addEventListener('click',()=>{if(!rom)return;const k=out;out=rom.slice();play();out=k;status('Original game, no glitch')});
+
+/* ---- presets + tutorial ---- */
+const mark=()=>document.querySelectorAll('#pre button').forEach(b=>b.classList.toggle('on',+b.dataset.v===+$('amt').value));
+document.querySelectorAll('#pre button').forEach(b=>b.addEventListener('click',()=>{
+  $('amt').value=b.dataset.v;$('mode').value=b.dataset.m;
+  if(info){const ci=info.regions.findIndex(r=>r[0].startsWith('CHR'));$('reg').value=b.dataset.r=='all'?0:(ci>0?ci:0)}
+  mark();run();
+}));
+$('amt').addEventListener('input',mark);
+const TU=[
+['👾','Welcome','This app scrambles the code of an NES or SNES game to make wild glitches, then lets you play the result.'],
+['📂','1. Choose a game','Tap the file picker and choose a game file (NES, SNES, N64, Game Boy, GBA, DS, Genesis or PS1). Use games you own. Nothing leaves your device.'],
+['🎲','2. Glitch it','Pick Mild, Medium or Wild, then tap New glitch for a different result each time. Many results won’t start. That’s normal: roll again, or go milder.'],
+['🎮','3. Play','Tap Play. Use the on-screen buttons, or pair a Bluetooth controller in your device’s Bluetooth settings and press any button on it.'],
+['💾','4. Keep the good ones','Found a great glitch? Tap Save to keep the file, or Share to send it to another emulator app.']];
+let ti=0;
+function tuShow(i){
+  ti=i;const t=TU[i];
+  $('ti').textContent=t[0];$('tt').textContent=t[1];$('tx').textContent=t[2];
+  $('td').innerHTML=TU.map((_,j)=>'<i'+(j==i?' class="on"':'')+'></i>').join('');
+  $('tb').style.visibility=i?'visible':'hidden';$('tn').textContent=i==TU.length-1?'Start':'Next';
+}
+function tuOpen(){tuShow(0);$('tu').classList.add('on')}
+function tuClose(){$('tu').classList.remove('on');try{localStorage.setItem('tuSeen','1')}catch(e){}}
+$('tn').onclick=()=>ti==TU.length-1?tuClose():tuShow(ti+1);
+$('tb').onclick=()=>tuShow(ti-1);$('tk').onclick=tuClose;$('hp').onclick=tuOpen;
+try{if(!localStorage.getItem('tuSeen'))tuOpen()}catch(e){tuOpen()}
+
+/* ---- RAM editor (NES, off by default) ---- */
+let rpage=0,rsel=-1,paused=false,fz={},rtick=0;
+const h4=n=>n.toString(16).toUpperCase().padStart(4,'0'),h2=n=>n.toString(16).toUpperCase().padStart(2,'0');
+function rmRender(){
+  if(!nes)return;const m=nes.cpu.mem,b=rpage*256;let h='';
+  for(let i=0;i<256;i++){const a=b+i;h+='<span data-a="'+a+'" class="'+(a==rsel?'sel ':'')+(a in fz?'fz':'')+'">'+h2(m[a]||0)+'</span>'}
+  $('rg').innerHTML=h;$('rpg').textContent='$'+h4(b)+'-$'+h4(b+255);
+}
+$('pr').onclick=()=>{$('rm').hidden=!$('rm').hidden;rmRender()};
+$('rp0').onclick=()=>{rpage=(rpage+7)%8;rmRender()};
+$('rp1').onclick=()=>{rpage=(rpage+1)%8;rmRender()};
+$('rg').addEventListener('click',e=>{
+  const a=e.target.dataset&&e.target.dataset.a;if(a==null||!nes)return;
+  rsel=+a;$('rv').value=h2(nes.cpu.mem[rsel]||0);$('rad').textContent='$'+h4(rsel);rmRender();
+});
+$('rset').onclick=()=>{
+  if(rsel<0||!nes)return;const v=parseInt($('rv').value,16);if(isNaN(v))return;
+  nes.cpu.mem[rsel]=v&255;if(rsel in fz)fz[rsel]=v&255;rmRender();
+};
+$('rfz').onclick=()=>{if(rsel<0||!nes)return;if(rsel in fz)delete fz[rsel];else fz[rsel]=nes.cpu.mem[rsel];rmRender()};
+$('rpa').onclick=()=>{paused=!paused;$('rpa').textContent=paused?'Resume':'Pause'};
+$('rsc').onclick=()=>{if(!nes)return;for(let i=0;i<8;i++)nes.cpu.mem[Math.floor(Math.random()*2048)]=Math.floor(Math.random()*256);rmRender()};
+</script>
+</body></html>
