@@ -1,50 +1,9 @@
 {
-  "name": "rom-corrupter",
+  "name": "nexus-corruptor",
   "version": "1.0.0",
-  "description": "NES and SNES ROM corrupter",
-  "author": "ROM Corrupter <romcorrupter@example.com>",
-  "homepage": "https://example.com",
-  "license": "MIT",
-  "main": "main.js",
+  "description": "Universal Multi-System Disc and ROM Glitch Tool Core",
+  "main": "index.html",
   "scripts": {
-    "start": "electron .",
-    "dist:win": "electron-builder --win --publish never",
-    "dist:linux": "electron-builder --linux --publish never",
-    "postinstall": "node prepare.js",
-    "capacitor:sync:after": "node patch-android.js",
-    "capacitor:copy:after": "node patch-android.js"
-  },
-  "devDependencies": {
-    "electron": "^33.0.0",
-    "electron-builder": "^25.1.8",
-    "@capacitor/cli": "^6.2.0",
-    "@capacitor/core": "^6.2.0",
-    "@capacitor/android": "^6.2.0",
-    "@capacitor/ios": "^6.2.0",
-    "@capacitor/filesystem": "^6.0.2",
-    "@capacitor/share": "^6.0.3",
-    "jsnes": "^1.2.1"
-  },
-  "build": {
-    "appId": "com.romcorrupter.app",
-    "productName": "ROM Corrupter",
-    "files": [
-      "main.js",
-      "www/**"
-    ],
-    "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ]
-    },
-    "linux": {
-      "target": [
-        "deb",
-        "AppImage"
-      ],
-      "category": "Utility",
-      "maintainer": "ROM Corrupter <romcorrupter@example.com>"
-    }
+    "start": "npx capacitor copy && npx capacitor open android"
   }
 }
