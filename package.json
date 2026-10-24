@@ -1,26 +1,14 @@
 {
   "name": "rom-corruptor",
   "version": "1.0.0",
-  "main": "electron-main.js",
   "scripts": {
-    "build": "echo 'Static build'",
-    "electron": "electron .",
-    "dist": "electron-builder"
-  },
-  "build": {
-    "appId": "com.yourdomain.romcorruptor",
-    "files": ["www/**/*", "electron-main.js"],
-    "win": { "target": "portable" },
-    "linux": { "target": "deb" }
+    "build": "echo 'Static build'"
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0",
-    "@capacitor/core": "^5.7.0",
-    "@capacitor/ios": "^5.7.0"
+    "@capacitor/core": "^5.7.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.7.0",
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.1"
+    "@capacitor/cli": "^5.7.0"
   }
 }
