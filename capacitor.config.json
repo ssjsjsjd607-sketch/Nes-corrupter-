@@ -1,5 +1,6 @@
 {
-  "appId": "com.romcorrupter.app",
-  "appName": "ROM Corrupter",
-  "webDir": "www"
+  "appId": "com.nexus.corruptor",
+  "appName": "Nexus Corruptor",
+  "webDir": "www",
+  "bundledWebRuntime": false
 }
