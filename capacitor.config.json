@@ -1,6 +1,8 @@
 {
-  "appId": "com.nexus.corruptor",
-  "appName": "Nexus Corruptor",
+  "appId": "com.yourdomain.romcorruptor",
+  "appName": "ROM Corruptor",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "server": {
+    "androidScheme": "https"
+  }
 }
