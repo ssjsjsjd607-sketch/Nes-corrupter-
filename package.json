@@ -1,9 +1,11 @@
 {
   "name": "nexus-corruptor",
   "version": "1.0.0",
-  "description": "Universal Multi-System Disc and ROM Glitch Tool Core",
-  "main": "index.html",
+  "description": "Multi-System ROM and ISO Glitch Engine Core",
+  "main": "www/index.html",
   "scripts": {
-    "start": "npx capacitor copy && npx capacitor open android"
-  }
+    "build": "node prepare.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }
