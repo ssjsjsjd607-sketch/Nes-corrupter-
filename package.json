@@ -9,7 +9,8 @@
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win --publish never",
-    "dist:linux": "electron-builder --linux --publish never"
+    "dist:linux": "electron-builder --linux --publish never",
+    "postinstall": "node prepare.js"
   },
   "devDependencies": {
     "electron": "^33.0.0",
@@ -19,13 +20,29 @@
     "@capacitor/android": "^6.2.0",
     "@capacitor/ios": "^6.2.0",
     "@capacitor/filesystem": "^6.0.2",
-    "@capacitor/share": "^6.0.3"
+    "@capacitor/share": "^6.0.3",
+    "jsnes": "^1.2.1"
   },
   "build": {
     "appId": "com.romcorrupter.app",
     "productName": "ROM Corrupter",
-    "files": ["main.js", "www/**"],
-    "win": { "target": ["nsis", "portable"] },
-    "linux": { "target": ["deb", "AppImage"], "category": "Utility", "maintainer": "ROM Corrupter <romcorrupter@example.com>" }
+    "files": [
+      "main.js",
+      "www/**"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "maintainer": "ROM Corrupter <romcorrupter@example.com>"
+    }
   }
 }
