@@ -1,8 +1,5 @@
 {
-  "appId": "com.yourdomain.romcorruptor",
+  "appId": "com.romcorrupter.app",
   "appName": "ROM Corruptor",
-  "webDir": "www",
-  "server": {
-    "androidScheme": "https"
-  }
+  "webDir": "www"
 }
