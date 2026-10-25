@@ -98,6 +98,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <details><summary>Advanced</summary>
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="rme"> RAM editor while playing (NES only)</label>
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="fast"> Faster mode, no sound (for slow devices)</label>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="gm" checked> MIDI music plays over the game</label>
 <label for="vol">Game volume</label>
 <input type="range" id="vol" min="0" max="1" step="0.05" value="0.8">
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="smooth" checked> Smooth sound (softens harsh hiss)</label>
@@ -155,7 +156,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <div id="rg"></div>
 <div class="r"><span id="rad">tap a byte</span><input id="rv" maxlength="2" autocomplete="off" placeholder="hex"><button id="rset" type="button">Set</button><button id="rfz" type="button">Freeze</button></div>
 </div>
-<div id="pb"><button id="prc" type="button">● Rec MIDI</button><button id="pr" type="button" hidden>RAM</button><button id="psv" type="button">Save</button><button id="pa" type="button">Alt engine</button><button id="pbk" type="button">Built-in engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
+<div id="pb"><button id="pmu" type="button">🎵 Music on</button><button id="prc" type="button">● Rec MIDI</button><button id="pr" type="button" hidden>RAM</button><button id="psv" type="button">Save</button><button id="pa" type="button">Alt engine</button><button id="pbk" type="button">Built-in engine</button><button id="pcl" type="button">Original</button><button id="px2" type="button">New glitch</button><button id="pc" type="button">Close</button></div>
 <div class="tc" id="dp"><i style="left:57px;top:0">▲</i><i style="left:57px;bottom:0">▼</i><i style="left:0;top:57px">◀</i><i style="right:0;top:57px">▶</i></div>
 <div class="tc" id="ab"><div class="bt" id="bB" data-b="1">B</div><div class="bt" id="bA" data-b="0">A</div></div>
 <div class="tc" id="ss"><div class="bt sb" data-b="2">SELECT</div><div class="bt sb" data-b="3">START</div></div>
@@ -350,13 +351,13 @@ function audioOn(){
 }
 function bin(u){let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return s}
 function stopP(){
-  musicOff();rec=null;$('prc').textContent='● Rec MIDI';
+  rec=null;$('prc').textContent='● Rec MIDI';
   cancelAnimationFrame(raf);raf=0;nes=null;
   for(const k in cur)cur[k]=false;
   $('sf').hidden=true;$('sf').srcdoc='';
   if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=''}
 }
-function closeP(){stopP();$('pl').classList.remove('on');if(ac)ac.suspend();musicOn()}
+function closeP(){stopP();$('pl').classList.remove('on');if(ac)ac.suspend();musicSync()}
 function loop(t){
   raf=requestAnimationFrame(loop);poll();
   acc+=t-last;last=t;
@@ -389,7 +390,7 @@ function playNES(){
     nes.loadROM(bin(out));
   }catch(e){nes=null;playEJS('nes');status('Built-in engine failed ('+(e.message||e)+'). Using alternate engine.');return}
   fz={};rsel=-1;paused=false;$('rpa').textContent='Pause';$('rm').hidden=true;$('pr').hidden=!$('rme').checked;
-  $('pl').dataset.m='nes';$('pl').classList.add('on');
+  $('pl').dataset.m='nes';$('pl').classList.add('on');musicSync();
   status('Seed '+$('seed').value+' · '+(navigator.getGamepads&&[...navigator.getGamepads()].some(g=>g)?'controller ready':'press a controller button to connect'));
   slow=0;last=performance.now();acc=0;raf=requestAnimationFrame(loop);
 }
@@ -397,7 +398,7 @@ function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
   $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch.'+((info&&info.ext)||'bin')+'";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
   $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
-  $('pl').dataset.m='snes';$('pl').classList.add('on');
+  $('pl').dataset.m='snes';$('pl').classList.add('on');musicSync();
   status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
 }
 function playSNES(){playEJS('snes')}
@@ -497,14 +498,14 @@ $('rsc').onclick=()=>{if(!nes)return;for(let i=0;i<8;i++)nes.cpu.mem[Math.floor(
 $('vol').addEventListener('input',applyAudio);$('smooth').addEventListener('change',applyAudio);
 
 /* ---- menu music + button blips (MIDI note numbers, played by a tiny synth) ---- */
-let mc=null,mTimer=0,mStep=0,mNext=0,sndOn=true;
+let mc=null,mg=null,mTimer=0,mStep=0,mNext=0,sndOn=true;
 try{sndOn=localStorage.getItem('snd')!=='0'}catch(e){}
 const LEAD=[[69,72,76,72,81,76,72,69],[65,69,72,69,77,72,69,65],[72,76,79,76,84,79,76,72],[71,74,79,74,83,79,74,71]],ROOT=[45,41,48,43],BASS=[0,-1,0,-1,12,-1,0,-1];
 const mtof=n=>440*Math.pow(2,(n-69)/12);
 function tone(type,f,t,d,v){
   const o=mc.createOscillator(),g=mc.createGain();
   o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(mc.destination);o.start(t);o.stop(t+d+.02);
+  o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02);
 }
 function mTick(){
   while(mNext<mc.currentTime+.3){
@@ -514,15 +515,21 @@ function mTick(){
     mNext+=d;mStep=(mStep+1)%32;
   }
 }
+const wantMusic=()=>sndOn&&(!$('pl').classList.contains('on')||$('gm').checked);
+function setMg(){if(mg)mg.gain.value=$('pl').classList.contains('on')?.6:1}
 function musicOn(){
-  if(!sndOn||mTimer||$('pl').classList.contains('on'))return;
+  if(!wantMusic()||mTimer)return;
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-  if(!mc)mc=new AC();
-  mc.resume();mNext=mc.currentTime+.05;mTimer=setInterval(mTick,100);
+  if(!mc){mc=new AC();mg=mc.createGain();mg.connect(mc.destination)}
+  setMg();mc.resume();mNext=mc.currentTime+.05;mTimer=setInterval(mTick,100);
 }
 function musicOff(){clearInterval(mTimer);mTimer=0}
+function musicSync(){setMg();wantMusic()?musicOn():musicOff()}
+function gmUi(){$('pmu').textContent=$('gm').checked?'🎵 Music on':'🎵 Music off';musicSync()}
+$('gm').addEventListener('change',gmUi);
+$('pmu').addEventListener('click',()=>{$('gm').checked=!$('gm').checked;gmUi()});
 function blip(f){if(sndOn&&mc)tone('square',f,mc.currentTime,.07,.05)}
-function setSnd(on){sndOn=on;$('snd').textContent=on?'🔊':'🔇';try{localStorage.setItem('snd',on?'1':'0')}catch(e){}if(on)musicOn();else musicOff()}
+function setSnd(on){sndOn=on;$('snd').textContent=on?'🔊':'🔇';try{localStorage.setItem('snd',on?'1':'0')}catch(e){}musicSync()}
 $('snd').addEventListener('click',()=>setSnd(!sndOn));
 $('snd').textContent=sndOn?'🔊':'🔇';
 document.addEventListener('pointerdown',e=>{
