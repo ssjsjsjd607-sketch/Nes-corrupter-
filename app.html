@@ -37,6 +37,8 @@ button.p{background:linear-gradient(135deg,var(--ac),var(--vi));border:0;color:#
 .k{font:.82rem/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--mut);margin-top:10px;word-break:break-word}
 canvas{width:100%;height:28px;display:block;margin-top:10px;border-radius:8px;background:var(--in);border:1px solid var(--bd)}
 .n{font-size:.8rem;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:-8px 0 18px}
+.chips span{font-size:.72rem;padding:4px 10px;border-radius:999px;border:1px solid var(--bd);background:var(--in);color:var(--mut)}
 details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;font-weight:600}
 .lk{background:none;border:0;color:var(--mut);text-decoration:underline;font-weight:400;padding:8px}
 #tu{position:fixed;inset:0;z-index:20;background:rgba(5,5,12,.72);display:none;align-items:center;justify-content:center;padding:20px}
@@ -77,12 +79,13 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 </style></head>
 <body><main>
 <h1>ROM CORRUPTER</h1>
-<p class="s">Scramble an NES or SNES game, then play it. Works offline. Use games you own.</p>
+<p class="s">Scramble a retro game, then play it. NES works offline; other systems need internet the first time. Use games you own.</p>
+<div class="chips"><span>NES</span><span>SNES</span><span>Genesis / Mega Drive</span><span>PlayStation 1 (PS1)</span><span>Nintendo 64</span><span>Game Boy</span><span>GBA</span><span>DS</span></div>
 
 <div class="c">
 <h2><b class="nb">1</b>Choose a game</h2>
 <input type="file" id="f">
-<div class="k" id="inf">Pick a .nes, .sfc or .smc file.</div>
+<div class="k" id="inf">Pick a game file: .nes .sfc .md .gen .bin .iso .z64 .gba .nds ...</div>
 </div>
 
 <div class="c" id="ctl" hidden>
@@ -155,6 +158,12 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 const $=id=>document.getElementById(id);
 let rom=null,info=null,out=null,name='rom.bin';
 
+const SYS={nes:['NES','nes'],sfc:['SNES','snes'],smc:['SNES','snes'],swc:['SNES','snes'],fig:['SNES','snes'],
+  z64:['Nintendo 64','n64'],n64:['Nintendo 64','n64'],v64:['Nintendo 64','n64'],
+  gb:['Game Boy','gb'],gbc:['Game Boy Color','gb'],gba:['Game Boy Advance','gba'],nds:['Nintendo DS','nds'],
+  md:['Genesis / Mega Drive','segaMD'],gen:['Genesis / Mega Drive','segaMD'],smd:['Genesis / Mega Drive','segaMD'],
+  iso:['PlayStation 1 (PS1)','psx'],img:['PlayStation 1 (PS1)','psx'],pbp:['PlayStation 1 (PS1)','psx'],chd:['PlayStation 1 (PS1)','psx']};
+const SKIP={n64:0x1000,gb:0x150,gba:0xC0,nds:0x4000,segaMD:0x200,psx:0x10000};
 function detect(b,fn){
   const ext=fn.split('.').pop().toLowerCase();
   if(b[0]==0x4E&&b[1]==0x45&&b[2]==0x53&&b[3]==0x1A){
@@ -162,11 +171,16 @@ function detect(b,fn){
     const r=[['Whole ROM (skip header)',hdr,b.length-hdr]];
     if(prg&&hdr+prg<=b.length)r.push(['PRG only (code: crashes, odd behaviour)',hdr,prg]);
     if(chr&&hdr+prg+chr<=b.length)r.push(['CHR only (graphics glitches)',hdr+prg,chr]);
-    return{sys:'NES (iNES)'+(chr?'':', CHR-RAM'),hdr,regions:r};
+    return{sys:'NES (iNES)'+(chr?'':', CHR-RAM'),hdr,regions:r,core:'nes',ext:'nes'};
   }
-  const hdr=b.length%1024==512?512:0;
-  const snes=['sfc','smc','swc','fig'].includes(ext)||hdr==512||b.length%32768==0;
-  return{sys:snes?'SNES'+(hdr?' (512-byte copier header)':''):'Unknown format (treated as raw)',hdr,regions:[['Whole ROM'+(hdr?' (skip header)':''),hdr,b.length-hdr]]};
+  let k=SYS[ext];
+  if(!k&&ext=='bin')k=b.length>5e6?['PlayStation 1 (PS1)','psx']:['Genesis / Mega Drive','segaMD'];
+  const c512=b.length%1024==512;
+  if(!k&&(c512||b.length%32768==0))k=['SNES','snes'];
+  if(!k)return{sys:'Unknown format (corruption only, no playing)',hdr:0,regions:[['Whole file',0,b.length]],core:null,ext};
+  const core=k[1];
+  const hdr=Math.min(core=='snes'?(c512?512:0):(SKIP[core]||0),b.length>>1);
+  return{sys:k[0]+(core=='snes'&&hdr?' (512-byte copier header)':''),hdr,regions:[['Whole file'+(hdr?' (skip header)':''),hdr,b.length-hdr]],core,ext};
 }
 
 function rng(s){
@@ -220,6 +234,7 @@ function msg(t){$('msg').textContent=t;if($('pl').classList.contains('on'))statu
 
 $('f').addEventListener('change',async e=>{
   const f=e.target.files[0];if(!f)return;
+  if(f.size>268435456){$('inf').textContent='That file is too big for this app (limit 256 MB).';return}
   try{
     rom=new Uint8Array(await f.arrayBuffer());name=f.name;info=detect(rom,name);
     $('inf').textContent=name+' · '+(rom.length/1024).toFixed(0)+' KB · '+info.sys+' · header '+info.hdr+' B';
@@ -361,7 +376,7 @@ function playNES(){
 }
 function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
-  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
+  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch.'+((info&&info.ext)||'bin')+'";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
   $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
   $('pl').dataset.m='snes';$('pl').classList.add('on');
   status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
@@ -369,9 +384,9 @@ function playEJS(core){
 function playSNES(){playEJS('snes')}
 function play(){
   if(!out)return;
-  if(info.sys.startsWith('NES'))playNES();
-  else if(info.sys.startsWith('SNES'))playSNES();
-  else msg('Only NES and SNES ROMs can be played.');
+  if(info.core=='nes')playNES();
+  else if(info.core)playEJS(info.core);
+  else msg('This file type can be corrupted and saved, but not played here.');
 }
 /* controls: touch, keyboard, Bluetooth/USB gamepad */
 document.querySelectorAll('.bt[data-b]').forEach(el=>{
@@ -419,7 +434,7 @@ document.querySelectorAll('#pre button').forEach(b=>b.addEventListener('click',(
 $('amt').addEventListener('input',mark);
 const TU=[
 ['👾','Welcome','This app scrambles the code of an NES or SNES game to make wild glitches, then lets you play the result.'],
-['📂','1. Choose a game','Tap the file picker and choose a game file (.nes, .sfc or .smc). Use games you own. Nothing leaves your device.'],
+['📂','1. Choose a game','Tap the file picker and choose a game file (NES, SNES, Genesis / Mega Drive, PS1, N64, Game Boy, GBA or DS). Use games you own. Nothing leaves your device.'],
 ['🎲','2. Glitch it','Pick Mild, Medium or Wild, then tap New glitch for a different result each time. Many results won’t start. That’s normal: roll again, or go milder.'],
 ['🎮','3. Play','Tap Play. Use the on-screen buttons, or pair a Bluetooth controller in your device’s Bluetooth settings and press any button on it.'],
 ['💾','4. Keep the good ones','Found a great glitch? Tap Save to keep the file, or Share to send it to another emulator app.']];
