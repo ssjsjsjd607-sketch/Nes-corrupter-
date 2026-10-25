@@ -7,6 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jsnes@1.2.1/dist/jsnes.min.js"></script>
     <style>
         body { background: #0a0a0f; color: #00f3ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+        
+        /* Main Menu */
         #mainUI { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; box-sizing: border-box; }
         .box { background: rgba(20, 20, 30, 0.9); border: 1px solid #00f3ff; padding: 20px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,243,255,0.2); width: 100%; max-width: 400px; }
         h2 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #00f3ff; }
@@ -15,14 +17,17 @@
         #log { font-size: 12px; color: #a7f3d0; margin-top: 10px; }
         
         /* Native Fullscreen Emulator */
-        #gameContainer { display: none; flex-direction: column; height: 100vh; justify-content: space-between; background: #000; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }
-        #canvasWrapper { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        #gameContainer { display: none; flex-direction: column; height: 100vh; width: 100vw; background: #000; position: fixed; top: 0; left: 0; z-index: 100; overflow: hidden; }
+        
+        /* Canvas fits in remaining space */
+        #canvasWrapper { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; padding: 5px; box-sizing: border-box; }
         canvas { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
         
-        /* On-Screen Controller */
-        #controls { display: flex; justify-content: space-between; padding: 10px 20px 30px 20px; background: #111; border-top: 2px solid #00f3ff; user-select: none; }
+        /* On-Screen Controller pinned to bottom */
+        #controls { display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 20px 20px 20px; background: #111; border-top: 2px solid #00f3ff; user-select: none; flex-shrink: 0; }
+        
         .dpad { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); gap: 5px; }
-        .dpad button { background: #222; color: #fff; border: 1px solid #555; border-radius: 8px; font-size: 20px; padding: 0; margin: 0; }
+        .dpad button { background: #222; color: #fff; border: 1px solid #555; border-radius: 8px; font-size: 20px; padding: 0; margin: 0; touch-action: none; }
         .dpad button:active { background: #00f3ff; color: #000; }
         .dpad .up { grid-column: 2; grid-row: 1; }
         .dpad .left { grid-column: 1; grid-row: 2; }
@@ -30,7 +35,7 @@
         .dpad .down { grid-column: 2; grid-row: 3; }
         
         .actions { display: grid; grid-template-columns: repeat(2, 60px); gap: 10px; align-items: end; }
-        .actions button { background: #222; color: #00f3ff; border: 1px solid #00f3ff; border-radius: 50%; height: 60px; width: 60px; font-weight: bold; font-size: 16px; padding: 0; margin: 0; }
+        .actions button { background: #222; color: #00f3ff; border: 1px solid #00f3ff; border-radius: 50%; height: 60px; width: 60px; font-weight: bold; font-size: 16px; padding: 0; margin: 0; touch-action: none; }
         .actions button:active { background: #00f3ff; color: #000; }
         .sys-btn { border-radius: 20px !important; height: 30px !important; width: 50px !important; font-size: 10px !important; margin-bottom: 10px !important;}
         
@@ -59,21 +64,22 @@
         <div id="canvasWrapper">
             <canvas id="screen" width="256" height="240"></canvas>
         </div>
+        
         <div id="controls">
             <div class="dpad">
-                <button class="up" ontouchstart="press(4)" ontouchend="release(4)" onmousedown="press(4)" onmouseup="release(4)">▲</button>
-                <button class="left" ontouchstart="press(6)" ontouchend="release(6)" onmousedown="press(6)" onmouseup="release(6)">◀</button>
-                <button class="right" ontouchstart="press(7)" ontouchend="release(7)" onmousedown="press(7)" onmouseup="release(7)">▶</button>
-                <button class="down" ontouchstart="press(5)" ontouchend="release(5)" onmousedown="press(5)" onmouseup="release(5)">▼</button>
+                <button class="up" ontouchstart="press(4); event.preventDefault()" ontouchend="release(4); event.preventDefault()" onmousedown="press(4)" onmouseup="release(4)">▲</button>
+                <button class="left" ontouchstart="press(6); event.preventDefault()" ontouchend="release(6); event.preventDefault()" onmousedown="press(6)" onmouseup="release(6)">◀</button>
+                <button class="right" ontouchstart="press(7); event.preventDefault()" ontouchend="release(7); event.preventDefault()" onmousedown="press(7)" onmouseup="release(7)">▶</button>
+                <button class="down" ontouchstart="press(5); event.preventDefault()" ontouchend="release(5); event.preventDefault()" onmousedown="press(5)" onmouseup="release(5)">▼</button>
             </div>
             <div class="actions">
                 <div>
-                    <button class="sys-btn" ontouchstart="press(2)" ontouchend="release(2)" onmousedown="press(2)" onmouseup="release(2)">SEL</button>
-                    <button class="sys-btn" ontouchstart="press(3)" ontouchend="release(3)" onmousedown="press(3)" onmouseup="release(3)">STA</button>
+                    <button class="sys-btn" ontouchstart="press(2); event.preventDefault()" ontouchend="release(2); event.preventDefault()" onmousedown="press(2)" onmouseup="release(2)">SEL</button>
+                    <button class="sys-btn" ontouchstart="press(3); event.preventDefault()" ontouchend="release(3); event.preventDefault()" onmousedown="press(3)" onmouseup="release(3)">STA</button>
                 </div>
                 <div>
-                    <button ontouchstart="press(1)" ontouchend="release(1)" onmousedown="press(1)" onmouseup="release(1)">B</button>
-                    <button ontouchstart="press(0)" ontouchend="release(0)" onmousedown="press(0)" onmouseup="release(0)">A</button>
+                    <button ontouchstart="press(1); event.preventDefault()" ontouchend="release(1); event.preventDefault()" onmousedown="press(1)" onmouseup="release(1)">B</button>
+                    <button ontouchstart="press(0); event.preventDefault()" ontouchend="release(0); event.preventDefault()" onmousedown="press(0)" onmouseup="release(0)">A</button>
                 </div>
             </div>
         </div>
@@ -105,7 +111,6 @@
             const mode = document.getElementById('mode').value;
             let glitchedRom = new Uint8Array(romBytes);
             
-            // Corrupt code (Skip NES header)
             for (let i = 16; i < glitchedRom.length; i++) {
                 if (Math.random() > 0.95) {
                     if (mode === 'randomize') glitchedRom[i] = Math.floor(Math.random() * 256);
@@ -141,13 +146,12 @@
                 nes.loadROM(romStr);
                 function loop() {
                     if (!isRunning) return;
-                    // The Anti-Freeze Loop prevents the gray screen crash
                     try { nes.frame(); } catch(e) {} 
                     requestAnimationFrame(loop);
                 }
                 loop();
             } catch(e) {
-                alert("ROM crashed on load. Try a different game.");
+                alert("ROM crashed. Try again.");
                 closeGame();
             }
         }
@@ -185,4 +189,4 @@
         });
     </script>
 </body>
-  </html>
+                        </html>
