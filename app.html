@@ -57,6 +57,8 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 #pl[data-m=snes] .tc,#pl[data-m=snes] #cv,#pl[data-m=snes] #pa,#pl[data-m=snes] #prc,#pl[data-m=snes] #pcer,#pl[data-m=snes] #pst,#pl[data-m=snes] #sp{display:none}
 #sp{position:absolute;z-index:3;left:8px;top:calc(110px + env(safe-area-inset-top,0px));width:min(320px,92vw);max-height:60vh;overflow:auto;background:rgba(10,10,20,.92);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:6px 14px 14px;color:#fff;font-size:.9rem}
 #sp label{color:#c9c7e0;margin:12px 0 4px}
+#sp select{background:#1c1b2e;color:#fff;border-color:#555}
+#sp .k{margin-top:6px}
 #sp .ck{display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:#fff}
 #ps{position:absolute;left:8px;top:calc(8px + env(safe-area-inset-top,0px));font:.82rem ui-monospace,monospace;max-width:44%;z-index:2;background:rgba(10,10,20,.6);padding:6px 10px;border-radius:12px}
 #pb{position:absolute;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:54%;z-index:2}
@@ -81,6 +83,40 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 #rg span{padding:6px 0;text-align:center;background:#1c1b2e;cursor:pointer}
 #rg .sel{outline:2px solid #fff}#rg .fz{background:var(--ac)}
 #rv{width:56px;padding:6px;background:#1c1b2e;color:#fff;border:1px solid #666;border-radius:8px;font:inherit}
+/* ===== arcade look (v2) ===== */
+:root{--bg:#07060f;--fg:#eef0ff;--mut:#8f93b8;--card:rgba(18,16,40,.74);--bd:rgba(130,120,255,.28);--in:rgba(255,255,255,.06);--ac-rgb:255,61,127;--ac2-rgb:34,211,238;--vi-rgb:139,92,246;color-scheme:dark}
+body{background:radial-gradient(760px 420px at 50% -12%,rgba(var(--ac-rgb),.32),transparent 70%),radial-gradient(600px 400px at 100% 30%,rgba(var(--ac2-rgb),.12),transparent 70%),linear-gradient(rgba(130,120,255,.06) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(130,120,255,.06) 1px,transparent 1px) 0 0/44px 44px,var(--bg)}
+h1{font-size:2.1rem;letter-spacing:.14em;text-transform:uppercase;text-shadow:none;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;animation:gl 6s infinite}
+@keyframes gl{0%,91%,100%{transform:none;filter:none}93%{transform:translateX(-3px);filter:drop-shadow(3px 0 var(--ac2))}96%{transform:translateX(3px);filter:drop-shadow(-3px 0 var(--ac))}}
+p.s{color:var(--mut)}
+.c{position:relative;border-radius:18px;border:1px solid var(--bd);box-shadow:0 0 0 1px rgba(var(--ac-rgb),.07),0 14px 40px rgba(0,0,0,.5)}
+.c::before{content:"";position:absolute;top:-1px;left:20px;width:54px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+h2{letter-spacing:.06em;text-transform:uppercase;font-size:.95rem}
+.nb{border-radius:7px;font-family:ui-monospace,Menlo,Consolas,monospace;box-shadow:0 0 14px rgba(var(--ac-rgb),.55)}
+select:focus,input:focus{outline:none;border-color:var(--ac2);box-shadow:0 0 0 3px rgba(var(--ac2-rgb),.22)}
+input[type=range]{accent-color:var(--ac2)}
+button.p{box-shadow:0 0 24px rgba(var(--ac-rgb),.45)}
+.big{letter-spacing:.08em;text-transform:uppercase;font-size:1rem}
+#roll{border-color:var(--ac2);color:var(--ac2);animation:pu 2.6s infinite}
+@keyframes pu{0%,100%{box-shadow:0 0 0 rgba(var(--ac2-rgb),0)}50%{box-shadow:0 0 18px rgba(var(--ac2-rgb),.45)}}
+.seg{background:rgba(255,255,255,.04);border:1px solid var(--bd)}
+.seg button.on{box-shadow:0 0 16px rgba(var(--vi-rgb),.55)}
+.seg button:last-child{color:#ff7a7a}
+.seg button:last-child.on{color:#fff;background:linear-gradient(135deg,#ff3b30,#ff9500);box-shadow:0 0 18px rgba(255,80,40,.6)}
+.chips span{border-color:rgba(var(--ac2-rgb),.35);color:var(--ac2);background:rgba(var(--ac2-rgb),.07)}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ "}details[open] summary::before{content:"▾ "}
+#snd{background:rgba(18,16,40,.8);border-color:var(--bd)}
+#tc{border-color:rgba(var(--ac-rgb),.4);box-shadow:0 0 40px rgba(var(--ac-rgb),.25)}
+#pl{background:radial-gradient(900px 520px at 50% 28%,rgba(var(--vi-rgb),.25),#000 72%)}
+#cv{border:2px solid rgba(var(--ac2-rgb),.55);border-radius:8px}
+#pb button{border-color:rgba(var(--ac2-rgb),.55)}
+#dp::before,#dp::after{border-color:rgba(var(--ac2-rgb),.65);background:rgba(var(--ac2-rgb),.1)}
+#bA{background:radial-gradient(circle at 35% 30%,rgba(var(--ac-rgb),.6),rgba(var(--ac-rgb),.2));box-shadow:0 0 18px rgba(var(--ac-rgb),.5)}
+#bB{background:radial-gradient(circle at 35% 30%,rgba(var(--ac2-rgb),.55),rgba(var(--ac2-rgb),.18));box-shadow:0 0 18px rgba(var(--ac2-rgb),.45)}
+#pmd{position:absolute;left:8px;top:calc(60px + env(safe-area-inset-top,0px));z-index:2;font:.74rem ui-monospace,monospace;padding:3px 9px;border-radius:8px;background:rgba(0,0,0,.65);color:var(--ac2)}
+#pl.crt[data-m=nes]::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px)}
+#pl[data-m=snes] #pmd{display:none}
 </style></head>
 <body><button id="snd" type="button" aria-label="Menu music on or off">🔊</button>
 <main>
@@ -102,7 +138,10 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <details><summary>Advanced</summary>
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="rme"> RAM editor while playing (NES only)</label>
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="fast"> Faster mode, no sound (for slow devices)</label>
-<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="gm" checked> MIDI music plays over the game</label>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="gm" checked> Background chiptune song over the game</label>
+<label for="mm">Game music as MIDI instruments</label>
+<select id="mm"><option value="0">Off (normal NES sound)</option><option value="1" selected>NES sound + MIDI instruments</option><option value="2">MIDI instruments only</option></select>
+<p class="n" style="margin:4px 0 0">Reads the NES sound chip and replays the game's own music on piano, strings and bass. Built-in NES player only.</p>
 <button type="button" id="tst" style="margin-top:10px">Test MIDI sound</button>
 <label for="vol">Game volume</label>
 <input type="range" id="vol" min="0" max="1" step="0.05" value="0.8">
@@ -112,6 +151,9 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <label for="cer">CPU error rate: <span id="cerv">off</span></label>
 <input type="range" id="cer" min="0" max="300" step="1" value="0">
 <p class="n" style="margin:4px 0 0">Makes the emulated CPU make random mistakes while you play (flipped memory bits, wrong registers, skipped steps). Built-in NES player only. Higher means more chaos and crashes.</p>
+<label for="theme">Color theme</label>
+<select id="theme"><option value="neon">Neon pink + cyan</option><option value="matrix">Matrix green</option><option value="sunset">Sunset</option><option value="ice">Ice blue</option><option value="ember">Ember red</option></select>
+<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="crt"> CRT scanlines in the player</label>
 <label for="eng">NES engine</label>
 <select id="eng"><option value="auto">Auto (switches to fast if the game lags)</option><option value="fast">Fast (needs internet the first time)</option><option value="js">Built-in (works offline)</option></select>
 <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)"><input type="checkbox" id="hdrc"> ☠ Danger: corrupt everything, even the header</label>
@@ -152,7 +194,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 </div>
 
 <div style="text-align:center"><button class="lk" id="hp" type="button">How to use this app</button></div>
-<div class="n" style="text-align:center">Version 12: MIDI music, live settings, CPU errors</div>
+<div class="n" style="text-align:center">Version 12 · arcade UI, MIDI instruments, live settings</div>
 <div class="n" style="text-align:center;margin-top:4px">Made by Claude, an AI assistant from Anthropic</div>
 </main>
 <div id="tu"><div id="tc"><div id="ti"></div><h2 id="tt" style="font-size:1.3rem;margin:8px 0 0"></h2><p id="tx"></p><div class="dots" id="td"></div>
@@ -161,12 +203,17 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--ac2);font-size:.9rem;
 <canvas id="cv" width="256" height="240"></canvas>
 <iframe id="sf" hidden allow="gamepad; autoplay; fullscreen" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
 <div id="ps"></div>
+<div id="pmd" hidden></div>
 <div id="sp" hidden>
+<label for="lmm">Game music as MIDI instruments</label>
+<select id="lmm"><option value="0">Off (normal NES sound)</option><option value="1">NES sound + MIDI instruments</option><option value="2">MIDI instruments only</option></select>
+<div class="k" id="lmn"></div>
 <label for="lcer">CPU error rate: <span id="lcerv">off</span></label><input type="range" id="lcer" min="0" max="300" step="1" value="0">
 <label for="lvol">Game volume</label><input type="range" id="lvol" min="0" max="1" step="0.05" value="0.8">
 <label for="lspd">Game speed: <span id="lspdv">1x</span></label><input type="range" id="lspd" min="0.25" max="2" step="0.05" value="1">
-<label class="ck"><input type="checkbox" id="lgm" checked> MIDI music over the game</label>
+<label class="ck"><input type="checkbox" id="lgm" checked> Background chiptune song</label>
 <label class="ck"><input type="checkbox" id="lsm" checked> Smooth sound</label>
+<label class="ck"><input type="checkbox" id="lcrt"> CRT scanlines</label>
 <p class="n" style="margin:10px 0 0;color:#9f9dba">Speed other than 1x can make the game sound crackly.</p>
 </div>
 <div id="rm" hidden>
@@ -348,6 +395,8 @@ const AL=new Float32Array(8192),AR=new Float32Array(8192);let aw=0,ar=0;
 const srcs={t:{},k:{},g:{},m:{}},cur={};
 const status=t=>{$('ps').textContent=t};
 function set(s,b,on){srcs[s][b]=on;const a=!!(srcs.t[b]||srcs.k[b]||srcs.g[b]||srcs.m[b]);if(!nes||a===!!cur[b])return;cur[b]=a;a?nes.buttonDown(1,b):nes.buttonUp(1,b)}
+let mmode=0,msr=44100,mst=0,mtk=0,WT=[],DECS=[1,1,1];
+const SUSV=[.35,.7,.8],MVC=[0,1,2].map(()=>({n:-1,p:0,f:0,t:0,a:0,amp:0}));
 let gain=null,lp=null,lastL=0,lastR=0,gmix=false,inGraph=false,sPos=0,sStep=0,pL=0,pB=0,eL=0,eB=0,fL=0,fB=0,kL=.999,kB=.9995;
 function applyAudio(){if(!gain)return;gain.gain.value=+$('vol').value;lp.frequency.value=$('smooth').checked?12000:ac.sampleRate/2-100}
 function audioOn(){
@@ -356,6 +405,9 @@ function audioOn(){
   try{ac=new AC({latencyHint:'playback'})}catch(e){ac=new AC()}
   const sp=ac.createScriptProcessor(2048,0,2);
   const sr=ac.sampleRate,stepLen=Math.floor(.21*sr);
+  msr=sr;DECS=[.35,1,2].map(x=>x*sr);
+  const mkT=h=>{const t=new Float32Array(2048);let mx=0;for(let i=0;i<2048;i++){let x=0;h.forEach((a,k)=>{x+=a*Math.sin(2*Math.PI*(k+1)*i/2048)});t[i]=x;mx=Math.max(mx,Math.abs(x))}return t.map(v=>v/mx)};
+  WT=[mkT([1,.55,.3,.15,.08]),mkT([1,.7,.5,.4,.3,.2]),mkT([1,.25,.1])];
   kL=Math.pow(.00286,1/(.19*sr));kB=Math.pow(.0011,1/(.38*sr));
   sp.onaudioprocess=e=>{
     const L=e.outputBuffer.getChannelData(0),R=e.outputBuffer.getChannelData(1);
@@ -368,7 +420,21 @@ function audioOn(){
         m=(pL<.5?1:-1)*eL+(4*Math.abs(pB-.5)-1)*eB;eL*=kL;eB*=kB;
         if(++sPos>=stepLen){sPos=0;sStep=(sStep+1)&31}
       }
-      L[i]=lastL+m;R[i]=lastR+m;
+      let mi=0;
+      if(mmode){
+        for(let q=0;q<3;q++){
+          const v=MVC[q];
+          if(v.n>=0||v.a>.0005){
+            const tg=v.n>=0?v.amp*(SUSV[q]+(1-SUSV[q])*Math.exp(-v.t/DECS[q])):0;
+            v.a+=(tg-v.a)*(tg>v.a?.03:.004);
+            v.t++;v.p+=v.f;if(v.p>=1)v.p-=1;
+            mi+=WT[q][(v.p*2048)|0]*v.a;
+          }
+        }
+        mi*=.4;
+      }
+      const ng=mmode==2?0:1;
+      L[i]=lastL*ng+m+mi;R[i]=lastR*ng+m+mi;
     }
   };
   lp=ac.createBiquadFilter();lp.type='lowpass';lp.Q.value=.7;
@@ -378,6 +444,7 @@ function audioOn(){
 }
 function bin(u){let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return s}
 function stopP(){
+  MVC.forEach(v=>{v.n=-1;v.a=0});mst=0;
   $('sp').hidden=true;spd=1;
   inGraph=false;gmix=false;rec=null;$('prc').textContent='● Rec MIDI';
   cancelAnimationFrame(raf);raf=0;nes=null;
@@ -394,15 +461,16 @@ function loop(t){
     for(let j=0;j<k;j++){
       if(cerr>0&&!paused){let n=cerr/60;while(n>0){if(Math.random()<Math.min(1,n))injectFault();n--}}
       for(const a in fz)nes.cpu.mem[a]=fz[a];
-      dr=j==k-1;if(!paused){nes.frame();if(rec)recTick()}acc-=16.64;
+      dr=j==k-1;if(!paused){nes.frame();apuFrame();if(rec)recTick();if(mmode)midiTick()}acc-=16.64;
       if(nes.crashMessage)throw new Error(nes.crashMessage);
     }
     if(acc>33*Math.max(1,spd)){
       acc=16.64;slow++;
-      if(slow>=45&&nes.opts&&nes.opts.emulateSound){nes.opts.emulateSound=false;status('Slow device: sound turned off to run faster')}
+      if(slow>=45&&!mmode&&nes.opts&&nes.opts.emulateSound){nes.opts.emulateSound=false;status('Slow device: sound turned off to run faster')}
       if(slow>=150&&$('eng').value=='auto'&&navigator.onLine!==false){playEJS('nes');status('Still slow, switched to the fast engine');return}
     }else if(slow>0)slow=Math.max(0,slow-0.1);
     if(!$('rm').hidden&&++rtick%12==0)rmRender();
+    if(mmode&&++mtk%20==0){const tx='MIDI notes heard: '+mst+' · sound-chip writes: '+mw+(mw?(mst?'':' (waiting for music)'):' (not receiving sound data)');$('lmn').textContent=tx;$('pmd').textContent='♪ '+tx;$('pmd').hidden=false}
   }catch(e){cancelAnimationFrame(raf);raf=0;status('Crashed: '+(e.message||e)+' · tap Alt engine or New glitch')}
 }
 function playNES(){
@@ -416,17 +484,17 @@ function playNES(){
       onAudioSample:(l,r)=>{if(aw-ar>8000)ar=aw-2000;AL[aw&8191]=l;AR[aw&8191]=r;aw++},
       sampleRate:ac?ac.sampleRate:44100,emulateSound:!$('fast').checked});
     if(typeof nes.stop!=='function')nes.stop=()=>{};
-    nes.loadROM(bin(out));
+    nes.loadROM(bin(out));hookApu();
   }catch(e){nes=null;playEJS('nes');status('Built-in engine failed ('+(e.message||e)+'). Using alternate engine.');return}
   fz={};rsel=-1;paused=false;$('rpa').textContent='Pause';$('rm').hidden=true;$('pr').hidden=!$('rme').checked;
-  $('pl').dataset.m='nes';$('pl').classList.add('on');sPos=0;sStep=0;inGraph=true;musicSync();
+  $('pl').dataset.m='nes';$('pl').classList.add('on');sPos=0;sStep=0;inGraph=true;mmode=+$('mm').value;$('lmm').value=$('mm').value;$('pmd').hidden=!mmode;$('pl').classList.toggle('crt',$('crt').checked);musicSync();
   status('Seed '+$('seed').value+' · '+(navigator.getGamepads&&[...navigator.getGamepads()].some(g=>g)?'controller ready':'press a controller button to connect'));
   slow=0;last=performance.now();acc=0;raf=requestAnimationFrame(loop);
 }
 function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
   $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch.'+((info&&info.ext)||'bin')+'";EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_volume=0.8;EJS_defaultOptions={"shader":"disabled","fceumm_sndquality":"High"};<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>';
-  $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
+  $('pr').hidden=true;$('rm').hidden=true;$('pmd').hidden=true;$('sf').hidden=false;
   $('pl').dataset.m='snes';$('pl').classList.add('on');musicSync();
   status('Seed '+$('seed').value+' · loading alternate engine (needs internet)');
 }
@@ -601,20 +669,42 @@ $('midi').addEventListener('change',()=>{if($('midi').checked)initMidi()});
 
 /* ---- record the game's music to a .mid file (built-in NES player) ---- */
 let rec=null;
+/* Own model of the NES sound chip: we watch the game's writes to the APU registers
+   ($4000-$4017), so this does not depend on the emulator's internal variable names. */
+const LENT=[10,254,20,2,40,4,80,6,160,8,60,10,14,12,26,14,12,16,24,18,48,20,96,22,192,24,72,26,16,28,32,30];
+let APU=null,mw=0;
+function apuWrite(a,v){
+  mw++;const A=APU;if(!A)return;
+  if(a>=0x4000&&a<=0x4007){
+    const c=A.c[a<0x4004?0:1],r=a&3;
+    if(r==0){c.vol=v&15;c.cv=(v>>4)&1;c.halt=(v>>5)&1}
+    else if(r==2)c.tm=(c.tm&0x700)|v;
+    else if(r==3){c.tm=(c.tm&0xFF)|((v&7)<<8);if(c.en)c.len=LENT[(v>>3)&31];c.env=15}
+  }else if(a==0x4008){const c=A.c[2];c.ctl=(v>>7)&1;c.lr=v&0x7F}
+  else if(a==0x400A){const c=A.c[2];c.tm=(c.tm&0x700)|v}
+  else if(a==0x400B){const c=A.c[2];c.tm=(c.tm&0xFF)|((v&7)<<8);if(c.en)c.len=LENT[(v>>3)&31];c.lin=c.lr;c.reload=1}
+  else if(a==0x4015){for(let i=0;i<3;i++){const c=A.c[i];c.en=(v>>i)&1;if(!c.en)c.len=0}}
+}
+function apuFrame(){
+  const A=APU;if(!A)return;
+  for(let i=0;i<3;i++){
+    const c=A.c[i],halt=i<2?c.halt:c.ctl;
+    if(!halt&&c.len>0)c.len=Math.max(0,c.len-2);
+    if(i<2){if(!c.cv){c.env-=4/(c.vol+1);if(c.env<0)c.env=c.halt?15:0}}
+    else{if(c.ctl&&c.reload)c.lin=c.lr;else c.lin=Math.max(0,c.lin-4);if(!c.ctl)c.reload=0}
+  }
+}
+function hookApu(){
+  APU={c:[0,1,2].map(()=>({tm:0,len:0,vol:0,cv:0,halt:0,env:0,lin:0,lr:0,ctl:0,reload:0,en:0}))};mw=0;
+  try{const p=nes.papu,o=p.writeReg;p.writeReg=function(a,v){apuWrite(a,v);return o.apply(this,arguments)}}catch(e){}
+}
 function chanNote(i){
-  const p=nes.papu;let c,f,v;
-  try{
-    if(i<2){
-      c=i?p.square2:p.square1;
-      if(!c||!c.isEnabled||!(c.lengthCounter>0)||c.progTimerMax<8)return null;
-      v=c.envDecayDisable?c.envDecayRate:c.envVolume;f=1789773/(16*(c.progTimerMax+1));
-    }else{
-      c=p.triangle;
-      if(!c||!c.isEnabled||!(c.lengthCounter>0)||!(c.linearCounter>0)||c.progTimerMax<2)return null;
-      v=12;f=1789773/(32*(c.progTimerMax+1));
-    }
-  }catch(e){return null}
-  if(!(v>0)||!isFinite(f))return null;
+  const A=APU;if(!A)return null;
+  const c=A.c[i];if(!c.en||c.len<=0)return null;
+  let v,f;
+  if(i<2){if(c.tm<8)return null;v=c.cv?c.vol:Math.max(0,Math.round(c.env));f=1789773/(16*(c.tm+1))}
+  else{if(c.lin<=0||c.tm<2)return null;v=12;f=1789773/(32*(c.tm+1))}
+  if(!(v>0))return null;
   const n=Math.round(69+12*Math.log2(f/440));
   return n<21||n>108?null:[n,Math.min(127,Math.round(40+v*5))];
 }
@@ -644,7 +734,7 @@ function buildMidi(ev){
 $('prc').addEventListener('click',async()=>{
   if(!nes)return;
   if(!rec){
-    if(nes.opts&&nes.opts.emulateSound===false){status('Turn off Faster mode / no-sound first: MIDI recording needs the sound chip running.');return}
+    
     rec={f:0,ev:[],ch:[0,1,2].map(()=>({on:-1,pend:-1,pc:0,pv:0}))};
     $('prc').textContent='■ Stop & save MIDI';status('Recording the game music... tap Stop when you are done.');return;
   }
@@ -681,7 +771,7 @@ let spd=1;
 const spLoad=()=>{
   $('lcer').value=cerr;$('lcerv').textContent=cerr?cerr+'/sec':'off';
   $('lvol').value=$('vol').value;$('lspd').value=spd;$('lspdv').textContent=spd+'x';
-  $('lgm').checked=$('gm').checked;$('lsm').checked=$('smooth').checked;
+  $('lgm').checked=$('gm').checked;$('lsm').checked=$('smooth').checked;$('lmm').value=String(mmode);
 };
 $('pst').addEventListener('click',()=>{const h=!$('sp').hidden;$('sp').hidden=h;if(!h)spLoad()});
 $('lcer').addEventListener('input',()=>{cerr=+$('lcer').value;$('cer').value=cerr;$('lcerv').textContent=cerr?cerr+'/sec':'off';$('pcer').textContent='CPU err: '+(cerr||'off');$('cerv').textContent=cerr?cerr+' per second':'off'});
@@ -689,5 +779,31 @@ $('lvol').addEventListener('input',()=>{$('vol').value=$('lvol').value;applyAudi
 $('lspd').addEventListener('input',()=>{spd=+$('lspd').value;$('lspdv').textContent=spd+'x'});
 $('lgm').addEventListener('change',()=>{$('gm').checked=$('lgm').checked;gmUi()});
 $('lsm').addEventListener('change',()=>{$('smooth').checked=$('lsm').checked;applyAudio()});
+
+/* ---- game music as MIDI instruments (reads the NES sound chip) ---- */
+function midiTick(){
+  let heard=0;
+  for(let i=0;i<3;i++){
+    const v=MVC[i],c=chanNote(i),k=c?c[0]:-1;
+    if(k!==v.n){v.n=k;if(k>=0){v.f=mtof(k)/msr;v.t=0}}
+    v.amp=c?c[1]/127:0;if(c)heard=1;
+  }
+  mst+=heard;
+}
+$('mm').addEventListener('change',()=>{mmode=+$('mm').value;$('lmm').value=$('mm').value;$('pmd').hidden=!mmode});
+$('lmm').addEventListener('change',()=>{mmode=+$('lmm').value;$('mm').value=$('lmm').value;mst=0;$('pmd').hidden=!mmode});
+
+/* ---- color themes + CRT look ---- */
+const THEMES={neon:['255,61,127','34,211,238','139,92,246'],matrix:['40,255,120','0,200,255','20,150,90'],sunset:['255,140,50','255,60,120','160,70,255'],ice:['90,170,255','160,240,255','90,100,255'],ember:['255,70,50','255,190,40','200,40,90']};
+function setTheme(n){
+  const t=THEMES[n]||THEMES.neon,st=document.documentElement.style;
+  ['--ac','--ac2','--vi'].forEach((k,i)=>{st.setProperty(k,'rgb('+t[i]+')');st.setProperty(k+'-rgb',t[i])});
+  try{localStorage.setItem('theme',n)}catch(e){}
+}
+let th='neon';try{th=localStorage.getItem('theme')||'neon'}catch(e){}
+$('theme').value=th;setTheme(th);
+$('theme').addEventListener('change',()=>setTheme($('theme').value));
+$('crt').addEventListener('change',()=>{$('lcrt').checked=$('crt').checked;$('pl').classList.toggle('crt',$('crt').checked)});
+$('lcrt').addEventListener('change',()=>{$('crt').checked=$('lcrt').checked;$('pl').classList.toggle('crt',$('crt').checked)});
 </script>
 </body></html>
