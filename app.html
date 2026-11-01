@@ -352,7 +352,7 @@ $('f').addEventListener('change',async e=>{
   }catch(err){$('inf').textContent='Could not read that file.'}
 });
 let rt=0;const runD=()=>{clearTimeout(rt);rt=setTimeout(run,150)};
-['reg','mode','amt','seed'].forEach(id=>$(id).addEventListener('input',()=>{normal=false;mark();runD()}));
+['reg','mode','amt','seed'].forEach(id=>$(id).addEventListener('input',()=>{leaveNormal(id);mark();runD()}));
 $('roll').addEventListener('click',()=>{startGlitch();if($('pl').classList.contains('on'))play()});
 
 const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
@@ -600,6 +600,15 @@ function applyPreset(p){
   normal=false;$('amt').value=p.v;$('mode').value=p.m;
   if(info){const ci=info.regions.findIndex(r=>r[0].startsWith('CHR'));$('reg').value=p.r=='all'?0:(ci>0?ci:0)}
 }
+// Touching a glitch control while in Normal: everything else starts at Medium, only the control you changed keeps your value
+function leaveNormal(touched){
+  if(!normal)return;
+  const keep={reg:$('reg').value,mode:$('mode').value,amt:$('amt').value}[touched];
+  applyPreset({v:'-1',m:'smart',r:'auto'});
+  if(touched==='reg')$('reg').value=keep;
+  else if(touched==='mode')$('mode').value=keep;
+  else if(touched==='amt')$('amt').value=keep;
+}
 // New glitch: from Normal it starts at Medium (never at whatever was used last); otherwise it re-rolls the current settings
 function startGlitch(){
   if(normal)applyPreset({v:'-1',m:'smart',r:'auto'});
@@ -612,8 +621,7 @@ document.querySelectorAll('#pre button').forEach(b=>b.addEventListener('click',(
   mark();run();
   if($('pl').classList.contains('on'))play();
 }));
-$('amt').addEventListener('input',()=>{normal=false;mark()});
-$('hdrc').addEventListener('change',()=>{normal=false;mark();run()});
+$('hdrc').addEventListener('change',()=>{leaveNormal('hdrc');mark();run()});
 const TU=[
 ['👾','Welcome','This app scrambles the code of an NES or SNES game to make wild glitches, then lets you play the result. Made by Claude, an AI assistant from Anthropic.'],
 ['📂','1. Choose a game','Tap the file picker and choose a game file (NES, SNES, Genesis / Mega Drive, PS1, N64, Game Boy, GBA or DS). Use games you own. Nothing leaves your device.'],

@@ -12,7 +12,8 @@
     "dist:linux": "electron-builder --linux --publish never",
     "postinstall": "node prepare.js",
     "capacitor:sync:after": "node patch-android.js",
-    "capacitor:copy:after": "node patch-android.js"
+    "capacitor:copy:after": "node patch-android.js",
+    "dist:mac": "electron-builder --mac --publish never"
   },
   "devDependencies": {
     "electron": "^33.0.0",
@@ -45,6 +46,19 @@
       ],
       "category": "Utility",
       "maintainer": "ROM Corrupter <romcorrupter@example.com>"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
     }
   }
 }
