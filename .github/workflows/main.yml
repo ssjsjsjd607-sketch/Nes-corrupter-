@@ -16,6 +16,14 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: 'temurin', java-version: '17' }
       - run: npm install
+      - run: npm install jsnes@1.2.1 --no-save
+      - name: Put the app page in place
+        shell: bash
+        run: |
+          mkdir -p www
+          cp app.html www/index.html
+          cp node_modules/jsnes/dist/jsnes.min.js www/
+          grep -c "Version 12" www/index.html
       - run: npx cap add android
       - run: node patch-android.js
       - run: npx cap sync android
@@ -27,21 +35,31 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
   desktop:
-    name: Windows and Linux
+    name: Windows, Linux and macOS
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - run: npm install
+      - run: npm install jsnes@1.2.1 --no-save
+      - name: Put the app page in place
+        shell: bash
+        run: |
+          mkdir -p www
+          cp app.html www/index.html
+          cp node_modules/jsnes/dist/jsnes.min.js www/
+          grep -c "Version 12" www/index.html
       - if: runner.os == 'Windows'
         run: npm run dist:win
       - if: runner.os == 'Linux'
         run: npm run dist:linux
+      - if: runner.os == 'macOS'
+        run: npm run dist:mac
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ runner.os }}
@@ -49,6 +67,7 @@ jobs:
             dist/*.exe
             dist/*.deb
             dist/*.AppImage
+            dist/*.dmg
 
   ios:
     name: iOS unsigned IPA
@@ -58,6 +77,14 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - run: npm install
+      - run: npm install jsnes@1.2.1 --no-save
+      - name: Put the app page in place
+        shell: bash
+        run: |
+          mkdir -p www
+          cp app.html www/index.html
+          cp node_modules/jsnes/dist/jsnes.min.js www/
+          grep -c "Version 12" www/index.html
       - run: npx cap add ios
       - run: npx cap sync ios
       - name: Build unsigned app and package as .ipa
