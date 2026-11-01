@@ -123,9 +123,10 @@ details[open]>summary::after{transform:rotate(90deg)}
 #sp{position:absolute;z-index:4;left:0;right:0;bottom:0;margin:0 auto;max-width:640px;max-height:74vh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:var(--s1);border:1px solid var(--bd);border-bottom:0;border-radius:30px 30px 0 0;padding:0 20px calc(28px + env(safe-area-inset-bottom,0px));box-shadow:0 -24px 70px rgba(0,0,0,.65);animation:sheet .3s cubic-bezier(.2,.8,.2,1) both}
 @keyframes sheet{from{transform:translateY(70px);opacity:0}to{transform:none;opacity:1}}
 @keyframes sheetr{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
-@media (orientation:landscape) and (min-width:700px){#sp{left:auto;top:0;bottom:0;max-width:none;max-height:none;width:min(440px,46vw);margin:0;border:1px solid var(--bd);border-right:0;border-radius:30px 0 0 30px;animation-name:sheetr}}
-#sph{position:sticky;top:0;z-index:1;background:var(--s1);padding:12px 0 10px;font:800 1.15rem system-ui,sans-serif;letter-spacing:-.02em}
-#sph::before{content:"";display:block;width:42px;height:4px;border-radius:2px;background:var(--s3);margin:0 auto 12px}
+@media (orientation:landscape) and (min-width:700px){#sp{left:auto;top:0;bottom:0;max-width:none;max-height:none;width:min(440px,46vw);margin:0;border:1px solid var(--bd);border-right:0;border-radius:30px 0 0 30px;animation-name:sheetr}#sp::before{display:none}}
+#sp::before{content:"";display:block;width:42px;height:4px;border-radius:2px;background:var(--s3);margin:10px auto 0}
+#sph{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;background:var(--s1);padding:10px 0;font:800 1.15rem system-ui,sans-serif;letter-spacing:-.02em}
+#spx{width:42px;height:42px;padding:0;border-radius:50%;font-size:1rem;background:var(--s2);border:1px solid var(--bd);color:var(--fg)}
 #sp .acts{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
 .acts{display:none}
 .acts button{padding:9px 13px;font-size:.82rem;border-radius:13px;background:var(--s2);color:var(--fg);border:1px solid var(--bd)}
@@ -247,7 +248,7 @@ details[open]>summary::after{transform:rotate(90deg)}
 <div id="stage"><div id="slab"><canvas id="cv" width="256" height="240"></canvas><i class="f bk"></i><i class="f tp"></i><i class="f bt"></i><i class="f lf"></i><i class="f rt"></i></div></div>
 <iframe id="sf" hidden allow="gamepad; autoplay; fullscreen" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
 <div id="ps"></div>
-<div id="sp" hidden><div id="sph">Settings</div><div id="spb"></div></div>
+<div id="sp" hidden><div id="sph"><span>Settings</span><button id="spx" type="button" aria-label="Close settings">✕</button></div><div id="spb"></div></div>
 <div id="rm" hidden>
 <div class="r"><button id="rp0" type="button">◀</button><span id="rpg"></span><button id="rp1" type="button">▶</button><button id="rpa" type="button">Pause</button><button id="rsc" type="button">Scramble</button></div>
 <div id="rg"></div>
@@ -837,6 +838,7 @@ let spd=1;
 function spOpen(){$('spb').appendChild($('adv'));$('advd').open=true;$('sp').hidden=false}
 function spClose(){if($('adv').parentNode!==$('ctl'))$('ctl').appendChild($('adv'));$('advd').open=false;$('sp').hidden=true}
 $('pst').addEventListener('click',()=>{$('sp').hidden?spOpen():spClose()});
+$('spx').addEventListener('click',spClose);
 $('spd').addEventListener('input',()=>{spd=+$('spd').value;$('spdv').textContent=spd+'x'});
 
 /* ---- game music as MIDI instruments (reads the NES sound chip) ---- */
