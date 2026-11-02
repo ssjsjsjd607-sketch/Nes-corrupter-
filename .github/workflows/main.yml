@@ -6,8 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  ejs-pack:
+    name: Offline systems pack
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm install --no-save playwright@1.48.2
+      - run: npx playwright install --with-deps chromium
+      - run: node fetch-ejs.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ejs-pack
+          path: |
+            www/ejs
+            www/ejs-pack.js
+          if-no-files-found: ignore
+
   android:
     name: Android APK
+    needs: ejs-pack
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +45,11 @@ jobs:
           cp app.html www/index.html
           cp node_modules/jsnes/dist/jsnes.min.js www/
           grep -c "Version 12" www/index.html
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: ejs-pack
+          path: www
       - run: npx cap add android
       - run: node patch-android.js
       - run: npx cap sync android
@@ -36,6 +62,8 @@ jobs:
 
   desktop:
     name: Windows, Linux and macOS
+    needs: ejs-pack
+    if: ${{ !cancelled() }}
     strategy:
       fail-fast: false
       matrix:
@@ -54,6 +82,11 @@ jobs:
           cp app.html www/index.html
           cp node_modules/jsnes/dist/jsnes.min.js www/
           grep -c "Version 12" www/index.html
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: ejs-pack
+          path: www
       - if: runner.os == 'Windows'
         run: npm run dist:win
       - if: runner.os == 'Linux'
@@ -71,6 +104,8 @@ jobs:
 
   ios:
     name: iOS unsigned IPA
+    needs: ejs-pack
+    if: ${{ !cancelled() }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,6 +120,11 @@ jobs:
           cp app.html www/index.html
           cp node_modules/jsnes/dist/jsnes.min.js www/
           grep -c "Version 12" www/index.html
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: ejs-pack
+          path: www
       - run: npx cap add ios
       - run: npx cap sync ios
       - name: Build unsigned app and package as .ipa
