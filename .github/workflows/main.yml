@@ -14,9 +14,83 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - run: npm install --no-save playwright@1.48.2
-      - run: npx playwright install --with-deps chromium
-      - run: node fetch-ejs.js
+      - name: Write the pack script
+        run: |
+          cat > fetch-ejs.js <<'EOF'
+          // Runs in the cloud build (which has internet). It opens the EmulatorJS player once per system
+          // and saves every file it downloads into www/ejs, so the app can run those systems offline.
+          // If anything goes wrong it just exits without a pack and the app keeps working online.
+          const { chromium } = require('playwright');
+          const http = require('http'), fs = require('fs'), path = require('path');
+
+          const CDN = 'https://cdn.emulatorjs.org/stable/data/';
+          const OUT = path.join('www', 'ejs');
+          const SYSTEMS = { nes: 'nes', snes: 'sfc', n64: 'z64', psx: 'iso', gba: 'gba', gb: 'gb', nds: 'nds', segaMD: 'md' };
+          const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+          (async () => {
+            const server = http.createServer((req, res) => {
+              const u = new URL(req.url, 'http://localhost');
+              if (u.pathname.startsWith('/rom.')) {
+                res.writeHead(200, { 'content-type': 'application/octet-stream' });
+                return res.end(Buffer.alloc(1 << 17));
+              }
+              const core = u.searchParams.get('core') || 'nes', ext = SYSTEMS[core] || 'bin';
+              res.writeHead(200, { 'content-type': 'text/html' });
+              res.end('<!doctype html><body style="margin:0"><div id="g" style="width:640px;height:480px"></div><script>' +
+                'EJS_player="#g";EJS_core="' + core + '";EJS_gameUrl="/rom.' + ext + '";EJS_gameName="x.' + ext + '";' +
+                'EJS_pathtodata="' + CDN + '";EJS_startOnLoaded=true;</script><script src="' + CDN + 'loader.js"></script></body>');
+            });
+            await new Promise(r => server.listen(0, r));
+            const port = server.address().port;
+            const browser = await chromium.launch();
+            const got = [], saved = new Set();
+
+            for (const core of Object.keys(SYSTEMS)) {
+              const ctx = await browser.newContext();          // fresh storage, so the core is really downloaded
+              const page = await ctx.newPage();
+              let last = Date.now(), coreFile = false;
+              page.on('response', async r => {
+                const u = r.url();
+                if (!u.startsWith(CDN) || r.status() !== 200) return;
+                last = Date.now();
+                const rel = u.slice(CDN.length).split('?')[0].split('#')[0];
+                if (/^cores\/.+\.data$/.test(rel)) coreFile = true;
+                if (!rel || saved.has(rel)) return;
+                saved.add(rel);
+                try {
+                  const f = path.join(OUT, rel);
+                  fs.mkdirSync(path.dirname(f), { recursive: true });
+                  fs.writeFileSync(f, await r.body());
+                } catch (e) { console.log('skipped', rel, e.message); }
+              });
+              try { await page.goto('http://localhost:' + port + '/?core=' + core); }
+              catch (e) { console.log('could not open', core, e.message); }
+              const start = Date.now();
+              while (Date.now() - last < 12000 && Date.now() - start < 180000) await sleep(1000);
+              if (coreFile) got.push(core);
+              console.log(core, coreFile ? 'saved' : 'no core file seen');
+              await ctx.close();
+            }
+
+            await browser.close();
+            server.close();
+            if (got.length && fs.existsSync(path.join(OUT, 'loader.js'))) {
+              fs.writeFileSync(path.join('www', 'ejs-pack.js'), 'window.EJS_PACK=' + JSON.stringify(got) + ';');
+              console.log('offline pack ready for: ' + got.join(', '));
+            } else {
+              console.log('no offline pack was made');
+            }
+          })().catch(e => { console.log('fetch-ejs stopped:', e.message); });
+          EOF
+      - name: Install the browser the script uses
+        continue-on-error: true
+        run: |
+          npm install --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Download the systems
+        continue-on-error: true
+        run: node fetch-ejs.js
       - uses: actions/upload-artifact@v4
         with:
           name: ejs-pack
