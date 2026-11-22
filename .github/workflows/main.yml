@@ -119,6 +119,28 @@ jobs:
           cp app.html www/index.html
           cp node_modules/jsnes/dist/jsnes.min.js www/
           grep -c "Version 12" www/index.html
+      - name: Add the offline helper (keeps downloaded systems for offline use)
+        run: |
+          cat > www/sw.js <<'EOF'
+          // Keeps everything the game systems download from the EmulatorJS site, so they work offline afterwards.
+          const NAME = 'ejs-cache-v1';
+          self.addEventListener('install', () => self.skipWaiting());
+          self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch', e => {
+            const r = e.request;
+            if (r.method !== 'GET' || new URL(r.url).hostname !== 'cdn.emulatorjs.org') return;
+            e.respondWith((async () => {
+              const c = await caches.open(NAME);
+              const hit = await c.match(r.url);
+              if (hit) return hit;
+              const res = await fetch(r);
+              if (res && (res.ok || res.type === 'opaque')) {
+                try { await c.put(r.url, res.clone()); } catch (err) {}
+              }
+              return res;
+            })());
+          });
+          EOF
       - uses: actions/download-artifact@v4
         continue-on-error: true
         with:
