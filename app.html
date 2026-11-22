@@ -165,6 +165,8 @@ details[open]>summary::after{transform:rotate(90deg)}
 <button type="button" data-s="nds" data-c="nds" data-a=".nds"><i>📓</i><b>Nintendo DS</b><small></small></button>
 <button type="button" data-s="any" data-c="" data-a=""><i>📂</i><b>Any file</b><small>auto-detect</small></button>
 </div>
+<button type="button" class="big" id="inst" style="margin:2px 0 4px">⬇ Install all systems on this device</button>
+<div class="n" id="instn" style="margin-bottom:12px">One-time download (about 60 MB or more). After that every system works with no internet.</div>
 <input type="file" id="f">
 <div class="k" id="inf">Tap a system above, or pick any game file.</div>
 </div>
@@ -270,7 +272,7 @@ details[open]>summary::after{transform:rotate(90deg)}
 </div>
 
 <div style="text-align:center"><button class="lk" id="hp" type="button">How to use this app</button></div>
-<div class="n" style="text-align:center">Version 12 · modern UI, 3D screen, MIDI instruments</div>
+<div class="n" style="text-align:center">Version 12 · modern UI, 3D screen, MIDI, offline systems</div>
 <div class="n" style="text-align:center;margin-top:4px">Made by Claude, an AI assistant from Anthropic</div>
 </main>
 <div id="tu"><div id="tc"><div id="ti"></div><h2 id="tt" style="font-size:1.3rem;margin:8px 0 0"></h2><p id="tx"></p><div class="dots" id="td"></div>
@@ -590,12 +592,15 @@ function ejsPath(core){
   const have=Array.isArray(window.EJS_PACK)&&window.EJS_PACK.indexOf(core)>=0,m=$('ejsrc').value;
   return have&&(m==='local'||(m==='auto'&&navigator.onLine===false))?'ejs/':'https://cdn.emulatorjs.org/stable/data/';
 }
+function ejsPage(core,ext,url,base,opts,vol){
+  return '<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+url+'";EJS_gameName="glitch.'+ext+'";EJS_pathtodata="'+base+'";EJS_startOnLoaded=true;EJS_volume='+vol+';EJS_defaultOptions='+opts+';<\/script><script src="'+base+'loader.js"><\/script>';
+}
 function playEJS(core){
   stopP();blobUrl=URL.createObjectURL(new Blob([out]));
   const base=ejsPath(core),ec=$('ejsc').checked,v=Number($('vol').value),vol=isNaN(v)?.8:Math.min(1,Math.max(0,v));
   const opts={shader:$('crt').checked?'crt-easymode.glslp':'disabled',fceumm_sndquality:'High'};
   if(ec)opts['virtual-gamepad']='disabled';
-  $('sf').srcdoc='<!doctype html><body style="margin:0;background:#000"><div id="g" style="width:100vw;height:100vh"></div><script>EJS_player="#g";EJS_core="'+core+'";EJS_gameUrl="'+blobUrl+'";EJS_gameName="glitch.'+((info&&info.ext)||'bin')+'";EJS_pathtodata="'+base+'";EJS_startOnLoaded=true;EJS_volume='+vol+';EJS_defaultOptions='+JSON.stringify(opts)+';<\/script><script src="'+base+'loader.js"><\/script>';
+  $('sf').srcdoc=ejsPage(core,(info&&info.ext)||'bin',blobUrl,base,JSON.stringify(opts),vol);
   $('pr').hidden=true;$('rm').hidden=true;$('sf').hidden=false;
   ejsOn=ec;$('pl').classList.toggle('ec',ec);
   $('pl').dataset.m='snes';$('pl').classList.add('on');musicSync();
@@ -1011,8 +1016,16 @@ $('srb').addEventListener('click',()=>{
 });
 
 /* ---- system picker ---- */
-const SYSLBL=c=>c==='nes'?'built in · offline':(c===''?'auto-detect':(Array.isArray(window.EJS_PACK)&&window.EJS_PACK.indexOf(c)>=0?'offline pack':'needs internet once'));
-function sysLabels(){document.querySelectorAll('#sysg button').forEach(b=>{const sm=b.querySelector('small');if(sm)sm.textContent=SYSLBL(b.dataset.c)})}
+const CNAMES={snes:['snes9x'],segaMD:['genesis_plus_gx','picodrive'],n64:['mupen64plus'],psx:['pcsx_rearmed','swanstation','beetle_psx'],gb:['gambatte','mgba'],gba:['mgba'],nds:['melonds','desmume']};
+async function cachedUrls(){try{const c=await caches.open('ejs-cache-v1');return(await c.keys()).map(r=>r.url)}catch(e){return[]}}
+async function coreSaved(core,urls){urls=urls||await cachedUrls();return urls.some(u=>u.indexOf('/cores/')>=0&&(CNAMES[core]||[]).some(n=>u.indexOf(n)>=0))}
+async function sysLabels(){
+  const urls=await cachedUrls();
+  for(const b of document.querySelectorAll('#sysg button')){
+    const c=b.dataset.c,sm=b.querySelector('small');if(!sm)continue;
+    sm.textContent=c==='nes'?'built in · offline':c===''?'auto-detect':(Array.isArray(window.EJS_PACK)&&window.EJS_PACK.indexOf(c)>=0)?'built in · offline':(await coreSaved(c,urls))?'saved on device':'needs internet once';
+  }
+}
 function markSys(core){document.querySelectorAll('#sysg button').forEach(b=>b.classList.toggle('on',!!core&&b.dataset.c===core))}
 document.querySelectorAll('#sysg button').forEach(b=>b.addEventListener('click',()=>{
   const a=b.dataset.a;
@@ -1020,5 +1033,55 @@ document.querySelectorAll('#sysg button').forEach(b=>b.addEventListener('click',
   $('f').click();
 }));
 sysLabels();
+
+/* ---- install all systems on this device (a service worker keeps the downloads) ---- */
+const CORELIST=[['snes','sfc'],['segaMD','md'],['n64','z64'],['psx','iso'],['gb','gb'],['gba','gba'],['nds','nds']];
+let installing=false,PRIME_SETTLE=4000,PRIME_TICK=2000;
+function primeCore(core,ext,onTick){
+  return new Promise(res=>{
+    const fr=document.createElement('iframe');
+    fr.style.cssText='position:fixed;left:-9999px;top:0;width:320px;height:240px;border:0';
+    const url=URL.createObjectURL(new Blob([new Uint8Array(1<<16)]));
+    fr.srcdoc=ejsPage(core,ext,url,'https://cdn.emulatorjs.org/stable/data/','{"shader":"disabled"}',0);
+    document.body.appendChild(fr);
+    const t0=Date.now();let checked=false;
+    const tick=async()=>{
+      if(!checked&&Date.now()-t0>=PRIME_TICK){
+        checked=true;
+        try{if(!fr.contentWindow.navigator.serviceWorker.controller){fr.remove();res('nohelper');return}}catch(e){}
+      }
+      const ok=await coreSaved(core);
+      if(ok||Date.now()-t0>180000){
+        await new Promise(r=>setTimeout(r,PRIME_SETTLE));
+        fr.remove();URL.revokeObjectURL(url);res(ok?'ok':'timeout');
+      }else{
+        if(onTick)onTick(Math.round((Date.now()-t0)/1000));
+        setTimeout(tick,PRIME_TICK);
+      }
+    };
+    setTimeout(tick,PRIME_TICK);
+  });
+}
+async function installSystems(){
+  if(installing)return;
+  const b=$('inst'),n=$('instn');
+  if(!('serviceWorker' in navigator)||!navigator.serviceWorker.controller){n.textContent='The offline helper is not active yet. Close the app, open it again, wait a few seconds, then tap this again.';return}
+  if(navigator.onLine===false){n.textContent='Connect to the internet first, then tap this again.';return}
+  installing=true;b.disabled=true;
+  let done=0;
+  for(let i=0;i<CORELIST.length;i++){
+    const core=CORELIST[i][0],ext=CORELIST[i][1];
+    if(await coreSaved(core)){done++;continue}
+    n.textContent='Downloading '+(i+1)+' of '+CORELIST.length+': '+core+' …';
+    const r=await primeCore(core,ext,sec=>{n.textContent='Downloading '+(i+1)+' of '+CORELIST.length+': '+core+' ('+sec+' s)'});
+    if(r==='nohelper'){n.textContent='This device does not share the offline helper with the game window, so installing is not possible here.';installing=false;b.disabled=false;return}
+    if(r==='ok')done++;
+    await sysLabels();
+  }
+  installing=false;b.disabled=false;await sysLabels();
+  n.textContent=done+' of '+CORELIST.length+' systems are saved on this device.';
+}
+$('inst').addEventListener('click',installSystems);
+if('serviceWorker' in navigator&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 </script>
 </body></html>
